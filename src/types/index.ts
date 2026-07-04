@@ -9,6 +9,11 @@ export interface BusinessProfile {
   createdAt: string; updatedAt: string
 }
 export type BusinessContextUsed = Pick<BusinessProfile,'businessName'|'stage'|'industry'|'currentGoal'|'budgetLevel'>
+export interface FounderProfile {
+  id:string; name:string; companyName:string; mainProjects:string[]; businessStage:string
+  currentPriorities:string[]; preferredTone:string; riskPreference:string
+  defaultPermissionLevel:PermissionLevel; createdAt:string; updatedAt:string
+}
 
 export interface Agent {
   id: string; name: string; role: string; description: string
@@ -21,6 +26,7 @@ export interface Workflow {
 export interface Approval {
   id: string; title: string; agentId: string; proposedAction: string; reason: string
   confidence: number; riskLevel: RiskLevel; status: 'pending' | 'approved' | 'rejected' | 'edited'; createdAt: string; sourceOutputId?: string
+  permissionLevel?: PermissionLevel; payloadPreview?: string; editedAction?: string; rejectionReason?: string; decidedAt?: string
 }
 export interface AgentOutput {
   id: string; agentId: string; title: string; summary: string; fullOutput: string

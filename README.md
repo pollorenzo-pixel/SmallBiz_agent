@@ -23,6 +23,27 @@ The profile personalises the Command Center, prompt responses, and workflow repo
 
 Profile memory is local-only in the MVP: there is no cloud sync, authentication, or secret storage. Corrupted profile JSON is removed safely and returns the user to onboarding. A future Supabase/Postgres implementation must preserve the profile-service interface while adding authentication, Row Level Security, server-side validation, audit controls, and scoped data deletion.
 
+## Phase 5 — Personalised Operator Layer
+
+Phase 5 adds a typed local `FounderProfile` alongside onboarding’s `BusinessProfile`. The founder profile stores operator name, company, main projects, stage, current priorities, tone, risk preference, and default permission level. Existing onboarding data seeds it automatically; both profile services are isolated for a future authenticated Supabase/Postgres migration.
+
+The Home screen now ranks workflows using projects, stage, priorities, tone, risk, and permission preference. Mock workflow and direct-agent outputs receive the same context while preserving workflow risk rules. For example, a VEXIS/product-validation profile raises VEXIS Feedback, Research, Marketing, and GitHub task work.
+
+Reports now support search, agent and tag filters, detail expansion, summary/full-output copying, and usefulness ratings. Approvals include an editable local action, payload preview, required rejection reason, decision timestamps, and visible Level 2/3 warnings. No approval executes external work.
+
+### Phase 5 test steps
+
+1. Complete onboarding or refresh an existing Phase 4 profile; confirm a FounderProfile is created and persists.
+2. In Settings, add projects such as `VEXIS`, priorities such as `product validation`, choose tone/risk/default permission, and save.
+3. Return Home and confirm recommended workflows and current priorities update.
+4. Run a recommended workflow and confirm the full output references projects, priorities, stage, tone, or permission context relevant to its agent.
+5. In Reports, test text search, agent filter, tag filter, Copy summary, Copy full output, and Useful/Not useful.
+6. Create a Level 2 local approval, open its detail, edit the action, then test approval and rejection (rejection requires a reason).
+7. Submit a Level 3 request and confirm it remains blocked with no executable approval.
+8. Refresh and confirm profiles, reports, ratings, approvals, edits, reasons, and timestamps persist locally.
+
+All Phase 5 behaviour is deterministic and browser-local. No API, AI token, secret, payment, database, email, repository, or production action is used.
+
 ## Repository Boundary
 
 - This is the standalone app repository for SmallBiz Agent.

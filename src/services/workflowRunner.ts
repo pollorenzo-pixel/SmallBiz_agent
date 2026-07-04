@@ -1,4 +1,4 @@
-import type { AgentOutput, BusinessProfile, Workflow } from '../types'
+import type { AgentOutput, BusinessProfile, FounderProfile, Workflow } from '../types'
 import { generateMockCompletion } from './modelAdapter'
 
 interface MockReportTemplate {
@@ -103,23 +103,25 @@ const templates: Record<string, MockReportTemplate> = {
 }
 
 const personalisedWorkflows = new Set(['business-plan','funding','automation','self-audit','marketing','research'])
-function profileSection(profile?:BusinessProfile,workflowId?:string):string {
+function profileSection(profile?:BusinessProfile,workflowId?:string,founder?:FounderProfile,agentId?:string):string {
   if(!profile)return ''
   const tailored=personalisedWorkflows.has(workflowId||'')?`\nPERSONALISATION NOTE\nRecommendations are framed for ${profile.businessName}'s ${profile.productOrService}, serving ${profile.targetCustomer}. The current goal is “${profile.currentGoal}” and the main constraint is “${profile.biggestChallenge}”. Use a ${profile.preferredTone} tone and ${profile.riskComfort} risk posture.\n`:''
-  return `BUSINESS CONTEXT USED\nBusiness: ${profile.businessName}\nStage: ${profile.stage}\nIndustry: ${profile.industry}\nCurrent goal: ${profile.currentGoal}\nBudget level: ${profile.budgetLevel}\n${tailored}\n`
+  const project=founder?.mainProjects[0]||profile.businessName;const priorities=founder?.currentPriorities.join('; ')||profile.currentGoal
+  const agentNote=agentId==='founder'?`Founder Ops focus: ${priorities}.`:agentId==='product'?`Product context: ${project}; validate against current priorities.`:agentId==='marketing'?`Marketing tone: ${founder?.preferredTone||profile.preferredTone}.`:agentId==='engineering'?`Technical delivery supports ${project}; remain within Level ${founder?.defaultPermissionLevel??1}.`:agentId==='finance'?`Finance boundary: ${founder?.riskPreference||profile.riskComfort} risk preference never permits payments, reconciliation, or tax actions.`:agentId==='research'?`Research framing: ${founder?.businessStage||profile.stage} stage.`:agentId==='customer'?`Customer voice: ${founder?.preferredTone||profile.preferredTone}.`:`Operator priorities: ${priorities}.`
+  return `BUSINESS CONTEXT USED\nBusiness: ${profile.businessName}\nStage: ${profile.stage}\nIndustry: ${profile.industry}\nCurrent goal: ${profile.currentGoal}\nBudget level: ${profile.budgetLevel}\nMain project: ${project}\nCurrent priorities: ${priorities}\nAgent context: ${agentNote}\n${tailored}\n`
 }
 
-function formatReport(template: MockReportTemplate, approvalNeeded: boolean, profile?:BusinessProfile, workflowId?:string): string {
-  return `${profileSection(profile,workflowId)}EXECUTIVE SUMMARY\n${profile&&personalisedWorkflows.has(workflowId||'')?`For ${profile.businessName}: `:''}${template.summary}\n\nKEY FINDINGS\n${template.findings.map(item=>`• ${item}`).join('\n')}\n\nRECOMMENDED NEXT ACTIONS\n${template.actions.map((item,index)=>`${index+1}. ${item}`).join('\n')}\n\nFULL MOCK OUTPUT\n${template.details.map(item=>`• ${item}`).join('\n')}\n\nAPPROVAL / RISK NOTE\n${template.riskNote}\nApproval needed: ${approvalNeeded ? 'Yes — a local approval preview was created.' : 'No.'}\n\nFUTURE INTEGRATION NOTE\n${template.futureIntegrationNote}\nNo external action was taken.`
+function formatReport(template: MockReportTemplate, approvalNeeded: boolean, profile?:BusinessProfile, workflowId?:string,founder?:FounderProfile,agentId?:string): string {
+  return `${profileSection(profile,workflowId,founder,agentId)}EXECUTIVE SUMMARY\n${profile&&personalisedWorkflows.has(workflowId||'')?`For ${profile.businessName}: `:''}${template.summary}\n\nKEY FINDINGS\n${template.findings.map(item=>`• ${item}`).join('\n')}\n\nRECOMMENDED NEXT ACTIONS\n${template.actions.map((item,index)=>`${index+1}. ${item}`).join('\n')}\n\nFULL MOCK OUTPUT\n${template.details.map(item=>`• ${item}`).join('\n')}\n\nAPPROVAL / RISK NOTE\n${template.riskNote}\nApproval needed: ${approvalNeeded ? 'Yes — a local approval preview was created.' : 'No.'}\n\nFUTURE INTEGRATION NOTE\n${template.futureIntegrationNote}\nNo external action was taken.`
 }
 
-export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, profile?:BusinessProfile): Promise<AgentOutput> {
+export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, profile?:BusinessProfile,founder?:FounderProfile): Promise<AgentOutput> {
   await generateMockCompletion({ agentId:workflow.assignedAgent, prompt:workflow.name })
   const template = templates[workflow.id]
   if (!template) throw new Error('No local mock report template is available for this workflow.')
   return {
     id:crypto.randomUUID(), agentId:workflow.assignedAgent, title:`${workflow.name} · Mock report`, summary:template.summary,
-    fullOutput:formatReport(template, approvalNeeded,profile,workflow.id), tags:[...template.tags, workflow.riskLevel, 'local-mock'],
+    fullOutput:formatReport(template, approvalNeeded,profile,workflow.id,founder,workflow.assignedAgent), tags:[...template.tags, workflow.riskLevel, 'local-mock'],
     createdAt:new Date().toISOString(), usefulnessRating:null, approvalNeeded, riskNote:template.riskNote,
     futureIntegrationNote:template.futureIntegrationNote, source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
     permissionLevel:approvalNeeded?2:1, estimatedCostMode:'cheap',
