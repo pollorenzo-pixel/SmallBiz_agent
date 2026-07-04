@@ -2,6 +2,14 @@ export type RiskLevel = 'low' | 'medium' | 'high' | 'restricted'
 export type PermissionLevel = 0 | 1 | 2 | 3
 export type StepStatus = 'not-started' | 'running' | 'completed' | 'needs-approval' | 'blocked'
 
+export interface BusinessProfile {
+  id: string; founderName: string; businessName: string; stage: string; industry: string
+  productOrService: string; targetCustomer: string; currentGoal: string; biggestChallenge: string
+  budgetLevel: string; preferredTone: string; riskComfort: string; desiredIntegrations: string[]
+  createdAt: string; updatedAt: string
+}
+export type BusinessContextUsed = Pick<BusinessProfile,'businessName'|'stage'|'industry'|'currentGoal'|'budgetLevel'>
+
 export interface Agent {
   id: string; name: string; role: string; description: string
   capabilities: string[]; boundaries: string[]; examplePrompts: string[]; defaultOutputFormat: string
@@ -20,6 +28,7 @@ export interface AgentOutput {
   approvalNeeded: boolean; riskNote: string; futureIntegrationNote: string
   source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'
   permissionLevel?: PermissionLevel; estimatedCostMode?: 'cheap'|'standard'|'premium'; skillStatus?: SkillStatus
+  contextUsed?: BusinessContextUsed
 }
 export type SkillStatus = 'available'|'draft'|'needs_review'|'blocked'|'future_integration'
 export interface SkillModule { id:string; name:string; description:string; category:string; status:SkillStatus; triggerPhrases:string[]; requiredInputs:string[]; outputFormat:string; riskLevel:RiskLevel; permissionLevel:PermissionLevel; version:string; createdAt:string; lastUpdatedAt:string }

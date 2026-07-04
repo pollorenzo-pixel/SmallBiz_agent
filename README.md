@@ -4,6 +4,25 @@ Official project name: `smallbiz_agent`
 
 SmallBiz Agent is a local-first AI business-building and automation command center for solo founders and small businesses. Its long-term promise is to help a person start, plan, fund, launch, run, and automate a business with a small AI operating team. The current MVP uses deterministic mock templates only.
 
+## Phase 4 — Onboarding and Business Profile Memory
+
+First-time users now complete a mobile-first onboarding flow before reaching the dashboard. The local `BusinessProfile` records founder and business names, stage, industry, offer, customer, current goal, biggest challenge, budget, tone, risk comfort, and desired future integrations.
+
+The profile personalises the Command Center, prompt responses, and workflow reports. Reports expose a `contextUsed` panel so users can see exactly which business name, stage, industry, goal, and budget influenced the mock output.
+
+### Test onboarding and memory
+
+1. Open the app on a fresh origin or clear the `smallbiz.businessProfile` localStorage key.
+2. Confirm onboarding appears before the dashboard.
+3. Complete all required fields and submit; confirm the personalised dashboard appears.
+4. Refresh and confirm the profile persists.
+5. Run Business Plan, Funding, Automation, Self-Audit, Marketing, and Research workflows; expand their reports and confirm profile context appears.
+6. Open **Settings → Business Profile**, edit a field, save, and confirm the dashboard/report context uses the update.
+7. Preview the readable export or export JSON.
+8. Choose **Clear profile & restart onboarding**, confirm the warning, and verify onboarding returns. Existing reports and approvals are intentionally retained.
+
+Profile memory is local-only in the MVP: there is no cloud sync, authentication, or secret storage. Corrupted profile JSON is removed safely and returns the user to onboarding. A future Supabase/Postgres implementation must preserve the profile-service interface while adding authentication, Row Level Security, server-side validation, audit controls, and scoped data deletion.
+
 ## Repository Boundary
 
 - This is the standalone app repository for SmallBiz Agent.
