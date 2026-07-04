@@ -1,0 +1,35 @@
+import { useState } from 'react'
+import type { Approval, AgentOutput, MockAgentResult, Workflow } from '../types'
+import { agents } from '../data/agents'
+import { Badge } from '../components/Badge'
+
+const quick = [
+  {label:'Start a Business Plan',workflow:'business-plan',prompt:'Build me a business plan for my idea.'},
+  {label:'Create One-Page Plan',prompt:'Create a one-page business plan.'},
+  {label:'Build Financial Forecast',prompt:'Create a detailed financial forecast.'},
+  {label:'Research Market',prompt:'Research the market for this business idea.'},
+  {label:'Find Funding Strategy',workflow:'funding',prompt:'Find ways to fund this business with little or no starting capital.'},
+  {label:'Create Launch Plan',prompt:'Create a 30-day launch plan.'},
+  {label:'Automate a Process',workflow:'automation',prompt:'Prepare an automation plan for customer replies.'},
+  {label:'Create Marketing Draft',workflow:'marketing',prompt:'Create ads and copy for this business.'},
+  {label:'Prepare Coding Prompt',workflow:'github',prompt:'Prepare a coding prompt.'},
+  {label:'Finance/Admin Review',workflow:'invoice',prompt:'Review finance and admin risks.'},
+  {label:'Self-Audit SmallBiz Agent',workflow:'self-audit',prompt:'Audit SmallBiz Agent.'}
+]
+
+interface Props { workflows:Workflow[];reports:AgentOutput[];approvals:Approval[];run:(id:string)=>void;go:(page:'workflows'|'approvals'|'reports'|'agents')=>void;submitPrompt:(prompt:string)=>MockAgentResult;promptResult:MockAgentResult|null }
+export function HomePage({ workflows, reports, approvals, run, go, submitPrompt, promptResult }:Props) {
+ const [prompt,setPrompt]=useState(''); const pending=approvals.filter(a=>a.status==='pending')
+ const submit=(value=prompt)=>{if(!value.trim())return;submitPrompt(value);setPrompt('')}
+ const useQuick=(item:typeof quick[number])=>item.workflow&&workflows.some(w=>w.id===item.workflow)?run(item.workflow):submitPrompt(item.prompt)
+ return <div className="page home-page"><header className="topbar"><div><p className="eyebrow">{new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'})}</p><h1>Build the business. Keep control.</h1><p>Start, plan, fund, launch, run, and automate with a local AI operating team.</p></div><Badge tone="live">● Local mock mode</Badge></header>
+  <section className="builder-hero"><div><span className="eyebrow">BUSINESS BUILDER MODE</span><h2>Where do we start building?</h2><p>Bring an idea—or just the beginnings of one. The team will turn it into a practical route from concept to first evidence.</p><div className="builder-path"><span>Idea</span><i>→</i><span>Plan</span><i>→</i><span>Funding</span><i>→</i><span>Launch</span><i>→</i><span>Run</span><i>→</i><span>Automate</span></div></div><button onClick={()=>{setPrompt('Build me a business plan for my idea.');}}>Start with an idea →</button></section>
+  <form className="command-card" onSubmit={e=>{e.preventDefault();submit()}}><div className="command-kicker">COMMAND THE SMALLBIZ TEAM</div><div className="command-row"><span>✦</span><input aria-label="Command" value={prompt} onChange={e=>setPrompt(e.target.value)} placeholder="Where do we start building?"/><button type="submit">Route request <b>→</b></button></div><p>Deterministic local routing · 0 real tokens · no external actions</p></form>
+  {promptResult&&<section className={`command-result ${promptResult.blockedReason?'blocked-result':''}`}><span className="result-check">{promptResult.blockedReason?'×':'✓'}</span><div><span className="eyebrow">{promptResult.blockedReason?'LEVEL 3 BLOCKED':'LOCAL TEAM RESPONSE'}</span><h2>{promptResult.output?.title||'Request stopped safely'}</h2><p>{promptResult.blockedReason||promptResult.output?.summary}</p><div className="meta-row"><Badge>{agents.find(a=>a.id===promptResult.agentId)?.name}</Badge>{promptResult.output&&<Badge>Level {promptResult.output.permissionLevel}</Badge>}{promptResult.approvalDraft&&<Badge tone="warning">Approval preview created</Badge>}</div><small>No real AI model, token spend, integration, or external action was used.</small></div>{promptResult.output&&<button onClick={()=>go('reports')}>View saved report →</button>}</section>}
+  <section className="team-strip"><div><span className="eyebrow">TEAM ONLINE LOCALLY</span><b>{agents.length} specialist agents</b></div>{agents.slice(0,6).map(a=><button key={a.id} onClick={()=>go('agents')} title={a.name}>{a.name.split(' ').map(x=>x[0]).slice(0,2).join('')}</button>)}<span className="team-more">+{agents.length-6}</span><div className="guardrail-pills"><Badge tone="live">0 real tokens</Badge><Badge>Skill drafts only</Badge><Badge tone="restricted">L3 blocked</Badge></div></section>
+  <section><div className="section-title"><div><span className="eyebrow">BUILD · LAUNCH · RUN</span><h2>Quick actions</h2></div><button className="text-button" onClick={()=>go('workflows')}>View all workflows →</button></div><div className="quick-grid expanded">{quick.map((item,i)=><button key={item.label} onClick={()=>useQuick(item)}><span className={`quick-icon q${i%6}`}>{['◇','▤','▦','⌕','£','↗','⌘','✎','⌁','▣','◎'][i]}</span><b>{item.label}</b><small>{item.workflow?workflows.find(w=>w.id===item.workflow)?.description:item.prompt}</small><i>Start →</i></button>)}</div></section>
+  <div className="dashboard-grid"><section className="panel"><div className="section-title"><div><span className="eyebrow">FOCUS</span><h2>Today’s priorities</h2></div></div>{['Clarify the first customer and problem','Choose the smallest paid validation','Protect Level 2 approval checkpoints'].map((p,i)=><div className="priority" key={p}><span>{i+1}</span><div><b>{p}</b><small>{i===0?'Start · High leverage':i===1?'Launch · Evidence first':'Safety · Human control'}</small></div></div>)}</section>
+   <section className="panel"><div className="section-title"><div><span className="eyebrow">HUMAN CHECKPOINT</span><h2>Pending approvals</h2></div><button className="text-button" onClick={()=>go('approvals')}>View all →</button></div>{pending.length?pending.slice(0,3).map(a=><div className="activity" key={a.id}><span className="activity-icon">!</span><div><b>{a.title}</b><small>{a.proposedAction}</small></div><Badge tone={a.riskLevel}>{a.riskLevel}</Badge></div>):<p className="muted">No approvals waiting. Level 2 previews will appear here; Level 3 stays blocked.</p>}</section></div>
+  <section className="panel activity-panel"><div className="section-title"><div><span className="eyebrow">RECENT REPORTS & ACTIVITY</span><h2>What the team produced</h2></div><button className="text-button" onClick={()=>go('reports')}>Open reports →</button></div>{reports.length?reports.slice(0,4).map(r=><div className="activity" key={r.id}><span className="activity-icon">✓</span><div><b>{r.title}</b><small>{r.summary} · {new Date(r.createdAt).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small></div><Badge>{r.source||'workflow'}</Badge></div>):<p className="muted">No recent activity yet. Ask “Where do we start building?” to create the first local report.</p>}</section>
+ </div>
+}
