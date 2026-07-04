@@ -44,6 +44,47 @@ Reports now support search, agent and tag filters, detail expansion, summary/ful
 
 All Phase 5 behaviour is deterministic and browser-local. No API, AI token, secret, payment, database, email, repository, or production action is used.
 
+## Backend-ready mock provider and tool execution architecture
+
+This phase adds frontend-only interfaces and registries for future providers, tools, execution requests/results, permission gates, and audit logs. Existing workflows now run through `executionEngine.ts` before the deterministic report generator:
+
+1. Resolve workflow and assigned agent.
+2. Select the enabled Mock Local Provider.
+3. Resolve workflow tool definitions from the Tool Registry.
+4. Build a typed `ExecutionRequest` with local profile context.
+5. Evaluate Level 0–3 permissions.
+6. Simulate only enabled Level 0/1 tools and persist `ToolExecutionLog` records.
+7. For Level 2, run safe draft tools and create a local approval preview for the sensitive future action.
+8. For Level 3, create a blocked `ExecutionResult`; no report, approval, tool execution, or external action occurs.
+9. Generate the existing structured report, attach provider/tool metadata, and persist the `ExecutionResult`.
+
+### AI Provider Registry
+
+`src/services/ai/providers.ts` defines Mock Local, future OpenAI-compatible, future OpenClaw, and future local-model providers. Only Mock Local is enabled. The selected provider ID is stored locally, but disabled providers cannot be selected or executed.
+
+Future real providers must be implemented behind a backend adapter with environment-managed credentials, scoped permissions, rate/cost controls, audit logs, and approval enforcement. Production API keys must never be placed in frontend code or localStorage because browser users and injected scripts can read them.
+
+### Tool Registry
+
+`src/services/tools/toolRegistry.ts` describes mock analysis/draft tools and disabled future Gmail, GitHub, Xero, Supabase, and webhook tools. Each tool declares its schema descriptions, permission, risk, approval requirement, enabled state, and future integration boundary. `mockToolExecutor.ts` never performs network or external work.
+
+### Local execution storage
+
+Execution results and tool logs use defensive localStorage helpers under `smallbiz.executionResults` and `smallbiz.toolExecutionLogs`. Settings shows local run/log counts, providers, and tools. Corrupted arrays fall back safely. These records are local diagnostics, not proof that any real-world action happened.
+
+### Architecture testing
+
+1. Run Daily Business Briefing and confirm three tools are simulated with Mock Local Provider and no approval.
+2. Run VEXIS, Marketing, GitHub, Automation, Self-Audit, or Invoice workflow and confirm safe tools run plus a local Level 2 approval preview.
+3. Expand its report and inspect provider, tools, permission decision, approval status, and execution-result ID.
+4. Open Settings and confirm only Mock Local is enabled; all future providers are disabled.
+5. Inspect Tool Registry permission/risk badges and disabled future tools.
+6. Refresh and confirm reports, approvals, execution results, selected provider, and tool logs persist.
+7. Submit a Level 3 command and confirm it remains blocked without creating an executable approval.
+8. Run `npm run build` and audit source for network clients or secret files.
+
+This architecture remains deterministic and mock-only. It contains no OpenAI, GitHub, Gmail, Xero, Supabase, Slack, webhook, MCP, payment, tax, deletion, or production API client.
+
 ## Repository Boundary
 
 - This is the standalone app repository for SmallBiz Agent.

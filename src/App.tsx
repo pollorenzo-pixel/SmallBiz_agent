@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react'
 import type { AgentOutput, Approval, BusinessProfile, FounderProfile, MockAgentResult, Workflow, WorkflowResult } from './types'
 import { workflowSeed } from './data/workflows'
 import { isRecordArray, loadLocal, saveLocal } from './services/storage'
-import { runWorkflow } from './services/workflowRunner'
-import { createApproval, shouldCreateApproval } from './services/approvalService'
+import { executeWorkflow } from './services/execution/executionEngine'
 import { generateMockAgentResponse } from './services/mockAgentResponse'
 import { clearBusinessProfile, getBusinessProfile, saveBusinessProfile, updateBusinessProfile } from './services/businessProfileService'
 import { clearFounderProfile, createFounderProfile, getOrCreateFounderProfile, syncFounderFromBusiness, updateFounderProfile } from './services/founderProfileService'
@@ -34,16 +33,15 @@ export function App() {
  useEffect(()=>{saveLocal('operator.workflows',workflows)},[workflows]); useEffect(()=>{saveLocal('operator.reports',reports)},[reports]); useEffect(()=>{saveLocal('operator.approvals',approvals)},[approvals])
  async function run(id:string){
   const wf=workflows.find(w=>w.id===id); if(!wf||running)return
-  if(wf.riskLevel==='restricted'){setRunError('This Level 3 workflow is blocked in the MVP. No approval or action was created.');return}
   setRunning(id); setResult(null); setRunError(''); setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'running'}:w))
   try{
-   const needsApproval=shouldCreateApproval(wf)
-   const approval=needsApproval?createApproval(wf):null
-   const report=await runWorkflow(wf,Boolean(approval),businessProfile||undefined,founderProfile||undefined)
-   setReports(v=>[report,...v]); if(approval)setApprovals(v=>[{...approval,sourceOutputId:report.id},...v])
+   const bundle=await executeWorkflow(wf,businessProfile||undefined,founderProfile||undefined)
+   if(bundle.result.status==='blocked'){setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'ready'}:w));setRunError(bundle.result.summary);setToast('Level 3 execution blocked locally');setTimeout(()=>setToast(''),4200);return}
+   const report=bundle.report!;const approval=bundle.approval
+   setReports(v=>[report,...v]); if(approval)setApprovals(v=>[approval,...v])
    const createdAt=new Date().toISOString()
    setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'complete',lastRunAt:createdAt}:w))
-   setResult({workflowId:wf.id,workflowName:wf.name,agentId:wf.assignedAgent,reportId:report.id,reportSummary:report.summary,approvalId:approval?.id,riskLevel:wf.riskLevel,createdAt})
+   setResult({workflowId:wf.id,workflowName:wf.name,agentId:wf.assignedAgent,reportId:report.id,reportSummary:report.summary,approvalId:approval?.id,riskLevel:wf.riskLevel,createdAt,providerName:report.execution?.providerName,simulatedTools:report.execution?.simulatedTools,permissionDecision:report.execution?.permissionDecision,executionResultId:report.execution?.executionResultId})
    setPage('workflows')
    setToast(`Mock report generated${approval?' · local approval item created':''}`)
   }catch{setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'ready'}:w));setRunError('The local simulation could not generate a report. Nothing external was contacted or changed.')}

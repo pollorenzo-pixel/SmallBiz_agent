@@ -35,7 +35,13 @@ export interface AgentOutput {
   source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'
   permissionLevel?: PermissionLevel; estimatedCostMode?: 'cheap'|'standard'|'premium'; skillStatus?: SkillStatus
   contextUsed?: BusinessContextUsed
+  execution?: { executionResultId:string; providerId:string; providerName:string; simulatedTools:string[]; permissionDecision:string; approvalStatus:string }
 }
+export interface AIProvider { id:string; name:string; type:string; status:'active'|'disabled'|'placeholder'; description:string; capabilities:string[]; authType:string; supportsStreaming:boolean; supportsTools:boolean; riskLevel:RiskLevel; isMock:boolean; enabled:boolean }
+export interface ToolDefinition { id:string; name:string; description:string; category:string; permissionLevel:PermissionLevel; riskLevel:RiskLevel; requiresApproval:boolean; inputSchemaDescription:string; outputSchemaDescription:string; enabled:boolean; isMock:boolean; futureIntegration:string }
+export interface ExecutionRequest { id:string; source:string; agentId:string; workflowId?:string; providerId:string; toolIds:string[]; userPrompt:string; context:Record<string,unknown>; permissionLevel:PermissionLevel; riskLevel:RiskLevel; requiresApproval:boolean; createdAt:string }
+export interface ExecutionResult { id:string; requestId:string; providerId:string; agentId:string; workflowId?:string; status:'completed'|'approval_required'|'blocked'|'failed'; summary:string; structuredOutput:Record<string,unknown>; toolResults:Array<Record<string,unknown>>; approvalId?:string; reportId?:string; warnings:string[]; createdAt:string }
+export interface ToolExecutionLog { id:string; toolId:string; requestId:string; status:'completed'|'approval_required'|'blocked'|'disabled'|'failed'; mockInput:Record<string,unknown>; mockOutput:Record<string,unknown>; riskLevel:RiskLevel; permissionLevel:PermissionLevel; createdAt:string }
 export type SkillStatus = 'available'|'draft'|'needs_review'|'blocked'|'future_integration'
 export interface SkillModule { id:string; name:string; description:string; category:string; status:SkillStatus; triggerPhrases:string[]; requiredInputs:string[]; outputFormat:string; riskLevel:RiskLevel; permissionLevel:PermissionLevel; version:string; createdAt:string; lastUpdatedAt:string }
 export interface SkillGapReport { id:string; requestedCapability:string; userPrompt:string; detectedGap:string; suggestedSkillName:string; suggestedWorkflow:string; riskLevel:RiskLevel; permissionLevel:PermissionLevel; recommendedReview:string; status:SkillStatus; createdAt:string }
@@ -44,6 +50,7 @@ export interface MockAgentResult { agentId:string; prompt:string; output?:AgentO
 export interface WorkflowResult {
   workflowId: string; workflowName: string; agentId: string; reportId: string
   reportSummary: string; approvalId?: string; riskLevel: RiskLevel; createdAt: string
+  providerName?:string; simulatedTools?:string[]; permissionDecision?:string; executionResultId?:string
 }
 export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string
