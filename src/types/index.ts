@@ -65,6 +65,18 @@ export interface CommandRouteSuggestion {
 export interface CommandHistoryItem {
   id:string; command:string; recommendedAgentId:string; recommendedWorkflowId:string; createdAt:string
 }
+
+export type ProjectType = 'Business idea'|'Website'|'App'|'Launch plan'|'Marketing campaign'|'Finance/admin'|'Research'|'Other'
+export type ProjectStage = 'Idea'|'Planning'|'Building'|'Reviewing'|'Launching'|'Active'|'Paused'
+export type ProjectStatus = 'Draft'|'In progress'|'Needs review'|'Waiting for approval'|'Complete'|'Paused'
+export type ProjectPriority = 'Low'|'Medium'|'High'
+export interface ProjectNote { id:string; text:string; createdAt:string }
+export interface ProjectNextAction { id:string; text:string; done:boolean; createdAt:string; completedAt?:string }
+export interface ProjectWorkspaceProject {
+  id:string; name:string; type:ProjectType; description:string; status:ProjectStatus; stage:ProjectStage; priority:ProjectPriority
+  ownerGoal:string; createdAt:string; updatedAt:string; linkedOutputIds:string[]; linkedApprovalIds:string[]; notes:ProjectNote[]; nextActions:ProjectNextAction[]
+}
+
 export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string
   permissions: PermissionLevel[]; riskLevel: RiskLevel

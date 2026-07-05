@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { AgentOutput, Approval, BusinessProfile, FounderProfile, MockAgentResult, Workflow, WorkflowResult } from './types'
+import type { AgentOutput, Approval, BusinessProfile, FounderProfile, MockAgentResult, ProjectWorkspaceProject, Workflow, WorkflowResult } from './types'
 import { workflowSeed } from './data/workflows'
 import { isRecordArray, loadLocal, saveLocal } from './services/storage'
 import { executeWorkflow } from './services/execution/executionEngine'
@@ -14,6 +14,8 @@ import { ApprovalsPage } from './pages/ApprovalsPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { OnboardingPage } from './pages/OnboardingPage'
+import { WorkspacePage } from './pages/WorkspacePage'
+import { loadProjects, saveProjects } from './services/projectWorkspaceService'
 
 export function App() {
  const [businessProfile,setBusinessProfile]=useState<BusinessProfile|null>(()=>getBusinessProfile())
@@ -25,12 +27,13 @@ export function App() {
  })
  const [reports,setReports]=useState<AgentOutput[]>(()=>loadLocal('operator.reports',[],isRecordArray<AgentOutput>))
  const [approvals,setApprovals]=useState<Approval[]>(()=>loadLocal('operator.approvals',[],isRecordArray<Approval>))
+ const [projects,setProjects]=useState<ProjectWorkspaceProject[]>(()=>loadProjects())
  const [running,setRunning]=useState<string|null>(null)
  const [toast,setToast]=useState('')
  const [result,setResult]=useState<WorkflowResult|null>(null)
  const [runError,setRunError]=useState('')
  const [promptResult,setPromptResult]=useState<MockAgentResult|null>(null)
- useEffect(()=>{saveLocal('operator.workflows',workflows)},[workflows]); useEffect(()=>{saveLocal('operator.reports',reports)},[reports]); useEffect(()=>{saveLocal('operator.approvals',approvals)},[approvals])
+ useEffect(()=>{saveLocal('operator.workflows',workflows)},[workflows]); useEffect(()=>{saveLocal('operator.reports',reports)},[reports]); useEffect(()=>{saveLocal('operator.approvals',approvals)},[approvals]); useEffect(()=>{saveProjects(projects)},[projects])
  async function run(id:string,userCommand?:string){
   const wf=workflows.find(w=>w.id===id); if(!wf||running)return
   setRunning(id); setResult(null); setRunError(''); setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'running'}:w))
@@ -49,6 +52,7 @@ export function App() {
  }
  function updateApproval(id:string,updates:Partial<Approval>){setApprovals(v=>v.map(a=>a.id===id?{...a,...updates,updatedAt:new Date().toISOString()}:a));setToast('Approval updated locally');setTimeout(()=>setToast(''),3000)}
  function rate(id:string,r:AgentOutput['usefulnessRating']){setReports(v=>v.map(x=>x.id===id?{...x,usefulnessRating:r}:x))}
+ function saveProject(project:ProjectWorkspaceProject){setProjects(v=>v.some(item=>item.id===project.id)?v.map(item=>item.id===project.id?project:item):[project,...v]);setToast('Project saved locally');setTimeout(()=>setToast(''),3000)}
  function submitPrompt(prompt:string,agentId?:string){
   const response=generateMockAgentResponse(prompt,agentId,businessProfile||undefined,founderProfile||undefined);setPromptResult(response)
   if(response.output)setReports(v=>[response.output!,...v]);if(response.approvalDraft)setApprovals(v=>[response.approvalDraft!,...v])
@@ -59,6 +63,6 @@ export function App() {
  function saveProfile(profile:BusinessProfile){const saved=updateBusinessProfile(profile)||saveBusinessProfile(profile);setBusinessProfile(saved);setFounderProfile(current=>current?syncFounderFromBusiness(current,saved):createFounderProfile(saved));setToast('Business profile saved locally');setTimeout(()=>setToast(''),3000)}
  function saveFounder(profile:FounderProfile){const saved=updateFounderProfile(profile);setFounderProfile(saved);setBusinessProfile(current=>current?saveBusinessProfile({...current,founderName:saved.name,businessName:saved.companyName,industry:saved.businessType,productOrService:saved.projects.join(', '),currentGoal:saved.goals[0]||current.currentGoal,preferredTone:saved.preferredTone,updatedAt:new Date().toISOString()}):current);setToast('Your setup was saved locally');setTimeout(()=>setToast(''),3000)}
  function resetProfile(){clearBusinessProfile();clearFounderProfile();setBusinessProfile(null);setFounderProfile(null);setPage('home');setPromptResult(null);setResult(null)}
- let content = page==='home'?<HomePage profile={businessProfile} founderProfile={founderProfile} workflows={workflows} reports={reports} approvals={approvals} run={run} go={setPage} submitPrompt={submitPrompt} promptResult={promptResult}/>:page==='agents'?<AgentsPage founderProfile={founderProfile} submitPrompt={submitPrompt} promptResult={promptResult}/>:page==='workflows'?<WorkflowsPage founderProfile={founderProfile} workflows={workflows} running={running} run={run} result={result} error={runError} viewReport={()=>setPage('reports')} viewApproval={()=>setPage('approvals')}/>:page==='approvals'?<ApprovalsPage approvals={approvals} update={updateApproval}/>:page==='reports'?<ReportsPage reports={reports} rate={rate} highlightedReportId={result?.reportId||promptResult?.output?.id} onRunRecommended={()=>setPage('workflows')}/>:<SettingsPage profile={businessProfile} founderProfile={founderProfile} onSaveProfile={saveProfile} onSaveFounderProfile={saveFounder} onResetProfile={resetProfile}/>
+ let content = page==='home'?<HomePage profile={businessProfile} founderProfile={founderProfile} workflows={workflows} reports={reports} approvals={approvals} projects={projects} run={run} go={setPage} submitPrompt={submitPrompt} promptResult={promptResult}/>:page==='workspace'?<WorkspacePage projects={projects} reports={reports} approvals={approvals} saveProject={saveProject} go={setPage}/>:page==='agents'?<AgentsPage founderProfile={founderProfile} submitPrompt={submitPrompt} promptResult={promptResult}/>:page==='workflows'?<WorkflowsPage founderProfile={founderProfile} workflows={workflows} running={running} run={run} result={result} error={runError} viewReport={()=>setPage('reports')} viewApproval={()=>setPage('approvals')}/>:page==='approvals'?<ApprovalsPage approvals={approvals} update={updateApproval}/>:page==='reports'?<ReportsPage reports={reports} rate={rate} highlightedReportId={result?.reportId||promptResult?.output?.id} onRunRecommended={()=>setPage('workflows')}/>:<SettingsPage profile={businessProfile} founderProfile={founderProfile} onSaveProfile={saveProfile} onSaveFounderProfile={saveFounder} onResetProfile={resetProfile}/>
  return <Shell page={page} setPage={setPage} pending={approvals.filter(a=>a.status==='pending'||a.status==='edited').length}>{content}{toast&&<div className="toast"><span>✓</span>{toast}<button onClick={()=>setPage('reports')}>View reports</button></div>}</Shell>
 }

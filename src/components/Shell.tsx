@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react'
 
-export type PageId = 'home'|'agents'|'workflows'|'approvals'|'reports'|'settings'
+export type PageId = 'home'|'workspace'|'agents'|'workflows'|'approvals'|'reports'|'settings'
 const nav: {id:PageId; label:string; icon:string}[] = [
-  {id:'home',label:'Home',icon:'⌂'},{id:'agents',label:'AI Team',icon:'◎'},{id:'workflows',label:'Help Menu',icon:'↗'},
+  {id:'home',label:'Home',icon:'⌂'},{id:'workspace',label:'Workspace',icon:'▦'},{id:'agents',label:'AI Team',icon:'◎'},{id:'workflows',label:'Help Menu',icon:'↗'},
   {id:'approvals',label:'Review',icon:'✓'},{id:'reports',label:'Saved Work',icon:'▤'},{id:'settings',label:'Settings',icon:'⚙'}
 ]
 export function Shell({ page, setPage, pending, children }:{page:PageId; setPage:(p:PageId)=>void; pending:number; children:ReactNode}) {
