@@ -85,7 +85,7 @@ export interface ProjectMilestone { id:string; projectId:string; title:string; d
 export type ProjectActionStatus='todo'|'doing'|'blocked'|'done'
 export interface ProjectActionItem { id:string; projectId:string; milestoneId?:string; sourceOutputId?:string; sourceApprovalId?:string; title:string; description:string; status:ProjectActionStatus; priority:'low'|'medium'|'high'; createdAt:string; updatedAt:string; completedAt?:string }
 export type BuilderCategory='website'|'offer'|'launch'|'ads'|'app'|'automation'
-export interface BuilderInputPrompt { id:string; label:string; helper:string; placeholder:string }
+export interface BuilderInputPrompt { id:string; label:string; helper:string; placeholder:string; defaultValue:string }
 export interface BuilderWorkflow {
   id:string; name:string; description:string; assignedAgentIds:string[]; category:BuilderCategory; bestFor:string
   inputPrompts:BuilderInputPrompt[]; outputSections:string[]; suggestedActionTemplates:string[]; suggestedMilestoneTemplates:string[]

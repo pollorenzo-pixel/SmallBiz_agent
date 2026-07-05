@@ -23,6 +23,25 @@ The managed website direction may later use Next.js/Tailwind, a private Polsia r
 
 Builder workflows can only plan assets belonging to the user’s own projects. They cannot modify SmallBiz Agent screens, navigation, internal logic, built-in workflows, architecture, or safety rules. All data remains defensive localStorage/mock data; Level 3 stays blocked.
 
+## Phase 16 — Guided Builder Inputs and Results
+
+Each Guided Builder now uses a beginner-friendly four-part flow: choose what to build, answer plain-English questions, review “Here’s what your AI team will use,” and create the plan. All seven builders have purpose-specific fields and a one-tap **I don’t know yet** option. Every blank field receives a sensible local default, so a plan can always be created without errors.
+
+Results now explain what was created, show suggested actions and milestone counts, link to the saved report and project board, offer summary/full-plan copy buttons, and make approval previews visible when relevant. Every result states that it is planning only and that nothing was published, deployed, sent, or spent. Ad results additionally state that no ad was launched and no money was spent.
+
+### Test Phase 16
+
+1. Open a project and choose each of the seven cards under **Build something**.
+2. Complete its plain-English form, review the answers, edit one answer, and create the plan.
+3. Repeat with every field blank; confirm helpful defaults appear in the review and saved report.
+4. In Reports, confirm the **Based on** section lists the inputs used.
+5. Confirm actions and milestones are linked to the project and persist after refresh.
+6. Confirm only website, app, ad, and automation plans create simulated approval previews.
+7. At approximately 390px wide, confirm fields, review cards, result actions, and copy buttons remain comfortable to use.
+8. Confirm corrupted builder-run storage safely falls back, Level 3 stays blocked, and no browser console errors appear.
+
+Phase 16 remains deterministic and localStorage-only. It has no APIs, backend, secrets, repository creation, deployment, ad platform connection, spend, email sending, payments, or other external action.
+
 ## Phase 6.5 — Simple Human-Friendly UI Refresh
 
 Phase 6.5 makes the app calmer and easier for non-technical users while preserving the existing local architecture. Navigation now uses **Home**, **Your AI Team**, **Help Menu**, **Needs Review**, and **Saved Work**. Home leads with one clear question, six familiar quick actions, review status, recent work, and today’s priorities. Agent and task cards use plain language, larger touch targets, shorter descriptions, and progressive disclosure for technical details.
