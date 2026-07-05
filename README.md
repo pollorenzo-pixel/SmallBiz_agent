@@ -4,6 +4,26 @@ Official project name: `smallbiz_agent`
 
 SmallBiz Agent is a local-first AI business-building and automation command center for solo founders and small businesses. Its long-term promise is to help a person start, plan, fund, launch, run, and automate a business with a small AI operating team. The current MVP uses deterministic mock templates only.
 
+## Phase 6.5 — Simple Human-Friendly UI Refresh
+
+Phase 6.5 makes the app calmer and easier for non-technical users while preserving the existing local architecture. Navigation now uses **Home**, **Your AI Team**, **Help Menu**, **Needs Review**, and **Saved Work**. Home leads with one clear question, six familiar quick actions, review status, recent work, and today’s priorities. Agent and task cards use plain language, larger touch targets, shorter descriptions, and progressive disclosure for technical details.
+
+The design principles are simple: lead with the user’s goal, use everyday words, keep one obvious next action, reveal detail only when requested, and clearly explain that important work waits for review. Provider, ability, safety, and execution information still exists for auditing and future backend work, but is labelled as advanced or shown under **How this was prepared** instead of dominating the main experience.
+
+### Test the simplified experience
+
+1. Open at mobile width and complete onboarding; confirm the form and primary action remain comfortable to tap.
+2. Confirm Home begins with “What do you need help with today?” and the six plain-English quick actions.
+3. Use a quick action and confirm the same local workflow/report behavior still works.
+4. Open **Your AI Team** and confirm cards explain what each member helps with and offer a clear Ask button.
+5. Open **Help Menu**, start a task, and confirm advanced ability/safety details are collapsed by default.
+6. Confirm completed work appears in **Saved Work** and Level 2 suggestions appear in **Needs Review**.
+7. Approve, edit, and reject a suggestion; confirm only local status changes.
+8. Open Settings and confirm personal details appear before technical architecture information.
+9. Run `npm run build`, refresh, and confirm profiles, saved work, reviews, execution logs, and preferences persist.
+
+This phase changes presentation only. Mock providers, local abilities, execution records, permission gates, Level 3 blocking, PWA behavior, and defensive localStorage services remain unchanged. No real API, secret, AI token, payment, message, repository, or production action is introduced.
+
 ## Phase 4 — Onboarding and Business Profile Memory
 
 First-time users now complete a mobile-first onboarding flow before reaching the dashboard. The local `BusinessProfile` records founder and business names, stage, industry, offer, customer, current goal, biggest challenge, budget, tone, risk comfort, and desired future integrations.
