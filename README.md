@@ -235,3 +235,33 @@ Needs Review now uses clear, mobile-friendly cards and a guided approval view. E
 To test: run Marketing, GitHub, Automation, or Invoice workflows to create review items. Open an approval, save an edit, cancel another edit, reject one with and one without a reason, and approve one. Refresh after each decision to confirm local persistence. Submit a Level 3 request and confirm it remains blocked; restricted items cannot be approved and instead suggest preparing a draft, checklist, or professional-review summary.
 
 Approval buttons only update localStorage. They never send email, create GitHub issues, update databases, trigger workflows, reconcile transactions, make payments, submit tax documents, delete production data, or create legal/financial commitments. No backend, API, secret, or external integration is connected.
+
+## Phase 11: Project Workspace Foundation
+
+Phase 11 adds a local Project Workspace for user-owned business work. It helps founders keep business ideas, website/app plans, launch tasks, notes, saved reports, and approval-linked work in one simple command-center area.
+
+What it supports in local demo mode:
+
+- Create and edit a project in the browser.
+- Track project type, stage, status, priority, owner goal, and description.
+- Add notes and next actions.
+- Mark next actions done or not done.
+- Link existing saved reports to a project.
+- See related approval items when they are connected through saved work.
+- Preview active workspace activity from Home.
+
+Boundary reminder: the workspace is for the user's own business projects and outputs. It does not allow users to change the SmallBiz Agent / AI Company Operator platform itself.
+
+Storage and safety:
+
+- Projects are saved only to `localStorage` under `operator.projects`.
+- Corrupted project storage falls back safely to an empty workspace.
+- No backend, Supabase, external API, secret storage, or real integration is introduced.
+- Existing approval safety levels remain unchanged; Level 3 restricted actions stay blocked in the MVP.
+
+Validation for this phase:
+
+```bash
+npm run typecheck
+npm run build
+```
