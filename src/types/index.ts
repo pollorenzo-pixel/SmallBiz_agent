@@ -84,6 +84,18 @@ export type ProjectMilestoneStatus='planned'|'active'|'completed'
 export interface ProjectMilestone { id:string; projectId:string; title:string; description:string; status:ProjectMilestoneStatus; createdAt:string; updatedAt:string; completedAt?:string }
 export type ProjectActionStatus='todo'|'doing'|'blocked'|'done'
 export interface ProjectActionItem { id:string; projectId:string; milestoneId?:string; sourceOutputId?:string; sourceApprovalId?:string; title:string; description:string; status:ProjectActionStatus; priority:'low'|'medium'|'high'; createdAt:string; updatedAt:string; completedAt?:string }
+export type BuilderCategory='website'|'offer'|'launch'|'ads'|'app'|'automation'
+export interface BuilderInputPrompt { id:string; label:string; helper:string; placeholder:string }
+export interface BuilderWorkflow {
+  id:string; name:string; description:string; assignedAgentIds:string[]; category:BuilderCategory; bestFor:string
+  inputPrompts:BuilderInputPrompt[]; outputSections:string[]; suggestedActionTemplates:string[]; suggestedMilestoneTemplates:string[]
+  riskLevel:RiskLevel; permissionLevel:PermissionLevel; requiresApprovalPreview:boolean; mockOnlyNotice:string
+}
+export interface BuilderRun {
+  id:string; projectId:string; builderWorkflowId:string; createdAt:string; inputs:Record<string,string>; reportId:string
+  generatedActionIds:string[]; generatedMilestoneIds:string[]; generatedApprovalIds:string[]
+}
+export interface BuilderRunBundle { run:BuilderRun; output:AgentOutput; actions:ProjectActionItem[]; milestones:ProjectMilestone[]; approvals:Approval[] }
 export interface DailyFocusSummary { projectId?:string; projectName?:string; topPriorities:ProjectActionItem[]; stuckItems:ProjectActionItem[]; nextMilestone?:ProjectMilestone; pendingApprovals:Approval[]; latestReport?:AgentOutput; suggestedAction:string; suggestedAgentId:string; focusMessage:string }
 export interface EndOfDayReviewInput { projectId?:string; doneToday:string; stillBlocked:string; moveToTomorrow:string; noteForAi:string }
 

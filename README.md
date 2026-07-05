@@ -4,6 +4,25 @@ Official project name: `smallbiz_agent`
 
 SmallBiz Agent is a local-first AI business-building and automation command center for solo founders and small businesses. Its long-term promise is to help a person start, plan, fund, launch, run, and automate a business with a small AI operating team. The current MVP uses deterministic mock templates only.
 
+## Phase 15 — Guided Builder Workflows
+
+Phase 15 adds a beginner-friendly Builder inside each user project. It can prepare seven deterministic plans: a business website, pricing page, product offer page, launch plan, first ad campaign, app idea, or automation plan. Every run saves a project-linked report and creates practical action-board items and milestones. Website, app, ad, and automation plans also create a **simulated Level 2 approval preview** for possible future external actions; approving that preview still executes nothing.
+
+### Test the Guided Builder
+
+1. Complete onboarding, open **Projects**, and create or select a user-owned project.
+2. Under **Build something**, run each of the seven Builder cards with blank defaults or short custom answers.
+3. Confirm each result appears in Reports and remains linked to the selected project.
+4. Confirm suggested tasks appear on the Action Board and suggested milestones appear in Milestones after refresh.
+5. Confirm pricing, offer, and launch planning create no approval because they are harmless local drafts.
+6. Confirm website, app, ad, and automation planning create only local approval previews.
+7. Open the ad plan and confirm it says no Meta connection, launch, spend, card charge, or customer guarantee occurred.
+8. Confirm older localStorage values still load, Level 3 remains blocked, and `npm run typecheck` plus `npm run build` pass.
+
+The managed website direction may later use Next.js/Tailwind, a private Polsia repository, Render, a `project.polsia.app` URL, downloadable code, and custom domains. The managed ads direction may later include creative generation, monitoring, pausing, and a platform fee. Those are product ideas only: this MVP does not create repositories, push code, deploy, connect Meta, publish ads, spend money, charge cards, update databases, send outreach, or perform any external action.
+
+Builder workflows can only plan assets belonging to the user’s own projects. They cannot modify SmallBiz Agent screens, navigation, internal logic, built-in workflows, architecture, or safety rules. All data remains defensive localStorage/mock data; Level 3 stays blocked.
+
 ## Phase 6.5 — Simple Human-Friendly UI Refresh
 
 Phase 6.5 makes the app calmer and easier for non-technical users while preserving the existing local architecture. Navigation now uses **Home**, **Your AI Team**, **Help Menu**, **Needs Review**, and **Saved Work**. Home leads with one clear question, six familiar quick actions, review status, recent work, and today’s priorities. Agent and task cards use plain language, larger touch targets, shorter descriptions, and progressive disclosure for technical details.
