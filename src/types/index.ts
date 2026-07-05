@@ -13,6 +13,7 @@ export interface FounderProfile {
   id:string; name:string; companyName:string; mainProjects:string[]; businessStage:string
   currentPriorities:string[]; preferredTone:string; riskPreference:string
   defaultPermissionLevel:PermissionLevel; createdAt:string; updatedAt:string
+  businessType:string; goals:string[]; projects:string[]; helpLevel:string; onboardingCompleted:boolean
 }
 
 export interface Agent {

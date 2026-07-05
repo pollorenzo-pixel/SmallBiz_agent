@@ -203,3 +203,11 @@ Level 3 is always blocked in the MVP. Approval buttons only update local browser
 Potential future systems include OpenAI-compatible APIs, GitHub, Gmail, Xero, Supabase, Slack, Discord, Telegram, OpenClaw, Sim, Codex/OpenHands, webhooks, MCP servers, Companies House/HMRC/Stripe where legally appropriate, and backend/local Excel generation.
 
 No real API, AI model, token spend, external action, secret storage, code modification, repository action, message, payment, submission, or automation occurs in this MVP.
+
+## Phase 7 — Simple onboarding and personalised AI team
+
+First-time users now complete a six-step, mobile-first setup covering their name, business, goals, projects, tone, and preferred help level. The typed founder profile is stored defensively in localStorage and marks onboarding as complete. Home quick actions, current focus, AI Team ordering, Help Menu recommendations, and local mock output context respond to those answers.
+
+To test Phase 7: clear the setup from **Settings → Your setup**, complete all six steps, refresh to confirm persistence, then compare recommendations after changing goals. Run a recommended workflow and confirm its report and any review item remain local. At 390×844, verify every step, Back/Next, goal selection, navigation, and setup reset remain usable.
+
+The setup has no cloud sync and must not contain passwords or secrets. Resetting setup returns to onboarding while preserving saved work and review history. A future Supabase migration must add authentication, Row Level Security, server validation, and audit controls before storing profile data remotely.
