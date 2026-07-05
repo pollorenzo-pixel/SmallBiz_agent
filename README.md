@@ -227,3 +227,11 @@ Workflow results now open with a plain-English review showing what happened, key
 Marketing drafts, GitHub issue/Codex prompts, product issue drafts, accountant questions, research summaries, and general action plans expose a ready-to-copy block. Approval explanations say exactly why a review item exists and confirm that nothing was sent or changed. Level 3 actions remain blocked.
 
 To test Phase 9: run Daily Briefing and Weekly Planning, then run Marketing, VEXIS, GitHub, Invoice, and Research workflows. Check the post-run summary, copy confirmation, full report view, usefulness rating persistence, and approval explanation. Refresh to verify reports and ratings persist. No live sources, APIs, payments, reconciliation, tax submission, publishing, or external tool actions are connected.
+
+## Phase 10 — Approval flow polish
+
+Needs Review now uses clear, mobile-friendly cards and a guided approval view. Each item explains the proposed action, why review is required, risk and confidence in plain English, what local approval means, and everything the app will not do automatically. Users can edit a proposal with Save/Cancel, reject with or without a note, or approve locally. Status history includes safe fallbacks for older approvals plus new updated, approved, and rejected timestamps.
+
+To test: run Marketing, GitHub, Automation, or Invoice workflows to create review items. Open an approval, save an edit, cancel another edit, reject one with and one without a reason, and approve one. Refresh after each decision to confirm local persistence. Submit a Level 3 request and confirm it remains blocked; restricted items cannot be approved and instead suggest preparing a draft, checklist, or professional-review summary.
+
+Approval buttons only update localStorage. They never send email, create GitHub issues, update databases, trigger workflows, reconcile transactions, make payments, submit tax documents, delete production data, or create legal/financial commitments. No backend, API, secret, or external integration is connected.

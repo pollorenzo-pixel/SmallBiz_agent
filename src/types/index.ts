@@ -26,8 +26,9 @@ export interface Workflow {
 }
 export interface Approval {
   id: string; title: string; agentId: string; proposedAction: string; reason: string
-  confidence: number; riskLevel: RiskLevel; status: 'pending' | 'approved' | 'rejected' | 'edited'; createdAt: string; sourceOutputId?: string
+  confidence: number; riskLevel: RiskLevel; status: 'pending' | 'approved' | 'rejected' | 'edited' | 'blocked'; createdAt: string; sourceOutputId?: string
   permissionLevel?: PermissionLevel; payloadPreview?: string; editedAction?: string; rejectionReason?: string; decidedAt?: string
+  updatedAt?:string; approvedAt?:string; rejectedAt?:string
 }
 export interface AgentOutput {
   id: string; agentId: string; title: string; summary: string; fullOutput: string
