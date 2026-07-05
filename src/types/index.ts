@@ -41,8 +41,10 @@ export interface AgentOutput {
   workflowId?:string; plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]
   copyableText?:string; approvalSummary?:string
   projectId?:string; sourceProjectTitle?:string; projectActionType?:string
+  builderPlan?:BuilderPlanData
   execution?: { executionResultId:string; providerId:string; providerName:string; simulatedTools:string[]; permissionDecision:string; approvalStatus:string }
 }
+export interface BuilderPlanData { builderWorkflowId:string; builderType:string; basedOn:Array<{label:string;value:string}>; sections:Array<{title:string;content:string}>; suggestedMilestones:string[]; approvalFutureActions:string[]; safetyNote:string }
 export interface AIProvider { id:string; name:string; type:string; status:'active'|'disabled'|'placeholder'; description:string; capabilities:string[]; authType:string; supportsStreaming:boolean; supportsTools:boolean; riskLevel:RiskLevel; isMock:boolean; enabled:boolean }
 export interface ToolDefinition { id:string; name:string; description:string; category:string; permissionLevel:PermissionLevel; riskLevel:RiskLevel; requiresApproval:boolean; inputSchemaDescription:string; outputSchemaDescription:string; enabled:boolean; isMock:boolean; futureIntegration:string }
 export interface ExecutionRequest { id:string; source:string; agentId:string; workflowId?:string; providerId:string; toolIds:string[]; userPrompt:string; context:Record<string,unknown>; permissionLevel:PermissionLevel; riskLevel:RiskLevel; requiresApproval:boolean; createdAt:string }

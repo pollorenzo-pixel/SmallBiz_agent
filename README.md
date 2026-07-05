@@ -42,6 +42,25 @@ Results now explain what was created, show suggested actions and milestone count
 
 Phase 16 remains deterministic and localStorage-only. It has no APIs, backend, secrets, repository creation, deployment, ad platform connection, spend, email sending, payments, or other external action.
 
+## Phase 17 — Builder Plan Review Experience
+
+Builder outputs now open as clean, project-linked plan documents in Saved Work. New plans store a typed, consistent structure covering the inputs used, recommended sections, next actions, milestones, future approval items, and safety note. Older Phase 15–16 builder reports use a defensive fallback view, so missing structured fields never crash the plan reader.
+
+Each plan detail shows its title, builder type, project, date, planning-only boundary, **Based on** inputs, summary, plan sections, actions, milestones, approval previews, usefulness feedback, and plain-English copy controls. Project Workspace now includes **Plans created**, where recent plans belonging to that project can be reopened. The Builder result’s **Open plan** button goes directly to the saved plan.
+
+### Test Phase 17
+
+1. Run a Guided Builder and choose **Open plan** from its result.
+2. Confirm the plan shows Based on, summary, recommended sections, next actions, milestones, approvals, and safety language.
+3. Test Copy summary, Copy full plan, Copy next actions, and an individual section copy button.
+4. Return to Projects and open the same plan from **Plans created**.
+5. Open an older builder report without `builderPlan`; confirm the fallback document remains readable.
+6. Open an ad campaign plan and confirm it says no ad was launched, no money was spent, and it is a campaign plan only.
+7. At approximately 390px wide, confirm long sections wrap and all buttons remain easy to tap.
+8. Refresh and confirm plans, actions, milestones, approval previews, and feedback persist locally.
+
+Phase 17 is display, review, and copy only. It performs no deployment, repository creation, publishing, messaging, ad launch, spending, payment, backend request, API call, or Level 3 action.
+
 ## Phase 6.5 — Simple Human-Friendly UI Refresh
 
 Phase 6.5 makes the app calmer and easier for non-technical users while preserving the existing local architecture. Navigation now uses **Home**, **Your AI Team**, **Help Menu**, **Needs Review**, and **Saved Work**. Home leads with one clear question, six familiar quick actions, review status, recent work, and today’s priorities. Agent and task cards use plain language, larger touch targets, shorter descriptions, and progressive disclosure for technical details.
