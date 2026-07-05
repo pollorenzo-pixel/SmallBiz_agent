@@ -256,6 +256,14 @@ Storage and safety:
 
 - Projects are saved only to `localStorage` under `operator.projects`.
 - Corrupted project storage falls back safely to an empty workspace.
+
+## Phase 12: Workspace-to-AI Team Flow
+
+Open a user-owned project in Workspace and choose **Ask the AI Team** to plan next steps, create product tasks or marketing copy, prepare a coding prompt, research options, or review admin/finance notes. Deterministic local helpers select the relevant built-in teammate, generate a structured mock report, save it to Saved Work, and link the report back to the project. Sensitive drafts such as GitHub issues, coding handoffs, or accountant emails create a local approval item instead of contacting an external service.
+
+To test locally: create or open a project, run each help action, confirm the result appears on the project, then open and copy it in Saved Work. Check that linked reports and approvals remain after refresh. Product tasks use Engineering for Website/App projects and Product otherwise. Finance review never reconciles transactions, pays, submits tax documents, or gives final accounting, legal, or tax advice.
+
+Everything remains mock/localStorage only. No API, secret, backend, hidden automation, or external action is connected. Level 3 payments, reconciliation, tax submission, production deletion, commitments, and irreversible actions remain blocked. Workspace tools only operate on the user’s own projects and assets; they cannot modify the SmallBiz Agent platform, its screens, workflows, safety rules, internal logic, or architecture.
 - No backend, Supabase, external API, secret storage, or real integration is introduced.
 - Existing approval safety levels remain unchanged; Level 3 restricted actions stay blocked in the MVP.
 

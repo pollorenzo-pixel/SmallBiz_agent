@@ -29,16 +29,18 @@ export interface Approval {
   confidence: number; riskLevel: RiskLevel; status: 'pending' | 'approved' | 'rejected' | 'edited' | 'blocked'; createdAt: string; sourceOutputId?: string
   permissionLevel?: PermissionLevel; payloadPreview?: string; editedAction?: string; rejectionReason?: string; decidedAt?: string
   updatedAt?:string; approvedAt?:string; rejectedAt?:string
+  projectId?:string
 }
 export interface AgentOutput {
   id: string; agentId: string; title: string; summary: string; fullOutput: string
   tags: string[]; createdAt: string; usefulnessRating: 'useful' | 'not-useful' | null
   approvalNeeded: boolean; riskNote: string; futureIntegrationNote: string
-  source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'
+  source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'|'project-workspace'
   permissionLevel?: PermissionLevel; estimatedCostMode?: 'cheap'|'standard'|'premium'; skillStatus?: SkillStatus
   contextUsed?: BusinessContextUsed
   workflowId?:string; plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]
   copyableText?:string; approvalSummary?:string
+  projectId?:string; sourceProjectTitle?:string; projectActionType?:string
   execution?: { executionResultId:string; providerId:string; providerName:string; simulatedTools:string[]; permissionDecision:string; approvalStatus:string }
 }
 export interface AIProvider { id:string; name:string; type:string; status:'active'|'disabled'|'placeholder'; description:string; capabilities:string[]; authType:string; supportsStreaming:boolean; supportsTools:boolean; riskLevel:RiskLevel; isMock:boolean; enabled:boolean }
@@ -74,8 +76,10 @@ export interface ProjectNote { id:string; text:string; createdAt:string }
 export interface ProjectNextAction { id:string; text:string; done:boolean; createdAt:string; completedAt?:string }
 export interface ProjectWorkspaceProject {
   id:string; name:string; type:ProjectType; description:string; status:ProjectStatus; stage:ProjectStage; priority:ProjectPriority
-  ownerGoal:string; createdAt:string; updatedAt:string; linkedOutputIds:string[]; linkedApprovalIds:string[]; notes:ProjectNote[]; nextActions:ProjectNextAction[]
+  ownerGoal:string; createdAt:string; updatedAt:string; linkedOutputIds:string[]; linkedApprovalIds:string[]; notes:ProjectNote[]; nextActions:ProjectNextAction[]; lastAiHelpAt?:string
 }
+export type ProjectHelpActionType='next-steps'|'product-tasks'|'marketing-draft'|'coding-prompt'|'research'|'finance-review'
+export interface ProjectHelpBundle { output:AgentOutput; approval?:Approval }
 
 export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string
