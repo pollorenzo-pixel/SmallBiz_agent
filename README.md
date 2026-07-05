@@ -272,6 +272,14 @@ Each user-owned Workspace project now has a simple Action Board with **Next acti
 After an AI Team project-help report is created, choose **Add suggested actions to board**. Only missing actions are added and they retain a link to the source report. Saved Work shows when a report has created board actions. Home displays lightweight open, stuck, done, and next-action signals.
 
 To test: open a project, add a milestone and action, move the action through each status, edit its title/description/priority, link it to the milestone, and mark both complete. Generate a Phase 12 project report and add its suggested actions twice to confirm duplicates are prevented. Refresh to confirm persistence. No API, backend, secret, external workflow, or real action is connected; Level 3 stays blocked, and the board cannot modify SmallBiz Agent core platform files or behavior.
+
+## Phase 14: Founder Focus daily operating loop
+
+Home now opens with **Today’s Focus**, derived locally from active projects, action priorities, stuck work, milestones, pending approvals, and useful/recent reports. Founders can switch the focus project, see three recommended priorities, mark the next action done, ask the suggested teammate, or generate a project-aware Daily Business Briefing. Empty states guide first-time users toward creating a project, actions, milestones, approvals, and reports.
+
+Daily Business Briefing reports now include project progress, priority actions, blockers, approval status, the next AI Team action, and an end-of-day prompt. The local End-of-day Review records completed work, blockers, tomorrow’s work, and a note for Founder Ops as a report linked to the chosen project.
+
+To test: try fresh localStorage, a project with no actions, and a project with high/blocked/completed actions plus milestones and approvals. Switch the focus project, mark an action done, run Daily Briefing, save an end-of-day review, refresh, and confirm reports/action state persist. All recommendations and drafts remain local/mock. The AI Team cannot publish, spend, advertise, email, create external issues, or change outside systems; Level 2 requires review and Level 3 remains blocked. Workspace features cannot modify the SmallBiz Agent core platform.
 - No backend, Supabase, external API, secret storage, or real integration is introduced.
 - Existing approval safety levels remain unchanged; Level 3 restricted actions stay blocked in the MVP.
 
