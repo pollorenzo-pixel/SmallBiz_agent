@@ -80,6 +80,10 @@ export interface ProjectWorkspaceProject {
 }
 export type ProjectHelpActionType='next-steps'|'product-tasks'|'marketing-draft'|'coding-prompt'|'research'|'finance-review'
 export interface ProjectHelpBundle { output:AgentOutput; approval?:Approval }
+export type ProjectMilestoneStatus='planned'|'active'|'completed'
+export interface ProjectMilestone { id:string; projectId:string; title:string; description:string; status:ProjectMilestoneStatus; createdAt:string; updatedAt:string; completedAt?:string }
+export type ProjectActionStatus='todo'|'doing'|'blocked'|'done'
+export interface ProjectActionItem { id:string; projectId:string; milestoneId?:string; sourceOutputId?:string; sourceApprovalId?:string; title:string; description:string; status:ProjectActionStatus; priority:'low'|'medium'|'high'; createdAt:string; updatedAt:string; completedAt?:string }
 
 export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string

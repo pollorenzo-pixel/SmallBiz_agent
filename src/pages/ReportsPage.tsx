@@ -1,18 +1,18 @@
 import { useMemo, useState } from 'react'
-import type { AgentOutput } from '../types'
+import type { AgentOutput, ProjectActionItem } from '../types'
 import { agents } from '../data/agents'
 import { Badge } from '../components/Badge'
 import { EmptyState } from '../components/EmptyState'
 
-interface Props{reports:AgentOutput[];rate:(id:string,r:AgentOutput['usefulnessRating'])=>void;highlightedReportId?:string;onRunRecommended:()=>void}
-export function ReportsPage({reports,rate,highlightedReportId,onRunRecommended}:Props){
+interface Props{reports:AgentOutput[];projectActions:ProjectActionItem[];rate:(id:string,r:AgentOutput['usefulnessRating'])=>void;highlightedReportId?:string;onRunRecommended:()=>void}
+export function ReportsPage({reports,projectActions,rate,highlightedReportId,onRunRecommended}:Props){
  const [search,setSearch]=useState('');const [agentFilter,setAgentFilter]=useState('all');const [tagFilter,setTagFilter]=useState('all');const [openId,setOpenId]=useState<string|undefined>(highlightedReportId);const [copied,setCopied]=useState('')
  const agentIds=useMemo(()=>[...new Set(reports.map(report=>report.agentId))],[reports]);const tags=useMemo(()=>[...new Set(reports.flatMap(report=>report.tags||[]))].sort(),[reports])
  const filtered=reports.filter(report=>(agentFilter==='all'||report.agentId===agentFilter)&&(tagFilter==='all'||(report.tags||[]).includes(tagFilter))&&(!search.trim()||`${report.title} ${report.summary} ${report.fullOutput} ${(report.tags||[]).join(' ')}`.toLowerCase().includes(search.toLowerCase())))
  const selected=reports.find(report=>report.id===openId);const copy=(id:string,text:string)=>{void navigator.clipboard?.writeText(text);setCopied(id);setTimeout(()=>setCopied(''),2200)}
  return <div className="page"><header className="topbar friendly-topbar"><div><p className="eyebrow">YOUR WORK</p><h1>Saved Work</h1><p>Useful results from your AI team, ready to review and copy.</p></div><Badge>{reports.length} saved</Badge></header>
   {selected&&<section className="report-detail"><div className="report-detail-head"><div><div className="meta-row"><Badge tone="live">{agents.find(agent=>agent.id===selected.agentId)?.name||'AI teammate'}</Badge>{selected.sourceProjectTitle&&<Badge>Project: {selected.sourceProjectTitle}</Badge>}{selected.projectActionType&&<Badge>{selected.projectActionType.replaceAll('-',' ')}</Badge>}{selected.approvalNeeded&&<Badge tone="warning">Needs your review</Badge>}</div><h2>{selected.title}</h2><small>{new Date(selected.createdAt).toLocaleString()}</small></div><button aria-label="Close report" onClick={()=>setOpenId(undefined)}>×</button></div>
-   <section><h3>Summary</h3><p>{selected.plainEnglishSummary||selected.summary}</p></section>
+   <section><h3>Summary</h3><p>{selected.plainEnglishSummary||selected.summary}</p>{projectActions.some(item=>item.sourceOutputId===selected.id)&&<small>{projectActions.filter(item=>item.sourceOutputId===selected.id).length} actions added to Project Board.</small>}</section>
    <div className="report-detail-grid"><section><h3>What your teammate found</h3><ul>{(selected.keyFindings||[selected.summary]).map(item=><li key={item}>{item}</li>)}</ul></section><section><h3>What to do next</h3><ol>{(selected.recommendedNextSteps||['Review the full details and choose the most useful next action.']).map(item=><li key={item}>{item}</li>)}</ol></section></div>
    {selected.copyableText&&<section className="copy-box"><div><h3>Ready to copy and use</h3><button onClick={()=>copy(selected.id,selected.copyableText!)}>{copied===selected.id?'Copied — ready to paste.':'Copy'}</button></div><pre>{selected.copyableText}</pre></section>}
    {selected.approvalNeeded&&<section className="approval-explainer"><Badge tone="warning">Needs approval</Badge><div><h3>Why this is waiting for you</h3><p>{selected.approvalSummary||'This draft could affect an external tool in the future, so it has been placed in Approvals instead of being sent automatically.'}</p><small>{selected.riskNote||'Nothing external happened.'} The app will not send, publish, pay, reconcile, submit, or change anything automatically.</small></div></section>}

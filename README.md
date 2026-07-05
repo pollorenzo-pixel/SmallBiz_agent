@@ -264,6 +264,14 @@ Open a user-owned project in Workspace and choose **Ask the AI Team** to plan ne
 To test locally: create or open a project, run each help action, confirm the result appears on the project, then open and copy it in Saved Work. Check that linked reports and approvals remain after refresh. Product tasks use Engineering for Website/App projects and Product otherwise. Finance review never reconciles transactions, pays, submits tax documents, or gives final accounting, legal, or tax advice.
 
 Everything remains mock/localStorage only. No API, secret, backend, hidden automation, or external action is connected. Level 3 payments, reconciliation, tax submission, production deletion, commitments, and irreversible actions remain blocked. Workspace tools only operate on the user’s own projects and assets; they cannot modify the SmallBiz Agent platform, its screens, workflows, safety rules, internal logic, or architecture.
+
+## Phase 13: Project Action Board and milestones
+
+Each user-owned Workspace project now has a simple Action Board with **Next actions**, **In progress**, **Stuck**, and **Done** sections. Actions can be added, edited, prioritised, linked to a milestone, moved with buttons, marked complete, or deleted. Milestones can be planned, made active, completed, and reopened. Board data is stored defensively in localStorage under `operator.projectActions` and `operator.projectMilestones`, so older saved projects continue with empty board defaults.
+
+After an AI Team project-help report is created, choose **Add suggested actions to board**. Only missing actions are added and they retain a link to the source report. Saved Work shows when a report has created board actions. Home displays lightweight open, stuck, done, and next-action signals.
+
+To test: open a project, add a milestone and action, move the action through each status, edit its title/description/priority, link it to the milestone, and mark both complete. Generate a Phase 12 project report and add its suggested actions twice to confirm duplicates are prevented. Refresh to confirm persistence. No API, backend, secret, external workflow, or real action is connected; Level 3 stays blocked, and the board cannot modify SmallBiz Agent core platform files or behavior.
 - No backend, Supabase, external API, secret storage, or real integration is introduced.
 - Existing approval safety levels remain unchanged; Level 3 restricted actions stay blocked in the MVP.
 
