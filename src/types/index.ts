@@ -36,6 +36,8 @@ export interface AgentOutput {
   source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'
   permissionLevel?: PermissionLevel; estimatedCostMode?: 'cheap'|'standard'|'premium'; skillStatus?: SkillStatus
   contextUsed?: BusinessContextUsed
+  workflowId?:string; plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]
+  copyableText?:string; approvalSummary?:string
   execution?: { executionResultId:string; providerId:string; providerName:string; simulatedTools:string[]; permissionDecision:string; approvalStatus:string }
 }
 export interface AIProvider { id:string; name:string; type:string; status:'active'|'disabled'|'placeholder'; description:string; capabilities:string[]; authType:string; supportsStreaming:boolean; supportsTools:boolean; riskLevel:RiskLevel; isMock:boolean; enabled:boolean }
@@ -52,6 +54,7 @@ export interface WorkflowResult {
   workflowId: string; workflowName: string; agentId: string; reportId: string
   reportSummary: string; approvalId?: string; riskLevel: RiskLevel; createdAt: string
   providerName?:string; simulatedTools?:string[]; permissionDecision?:string; executionResultId?:string
+  plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]; copyableText?:string; approvalSummary?:string
 }
 export interface CommandRouteSuggestion {
   id:string; originalCommand:string; recommendedAgentId:string; recommendedWorkflowId:string

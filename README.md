@@ -219,3 +219,11 @@ Home now lets a user describe what they need in plain English. A local keyword r
 Supported examples include planning a week, turning feedback into tasks, writing a founder post, preparing a coding prompt, reviewing invoices, comparing competitors or tools, and drafting a customer reply. Unknown requests fall back to Founder Ops and a simple priorities workflow instead of blocking the user.
 
 To test: enter `write a founder post`, `prepare a coding prompt`, and `review invoices`; confirm the Marketing, Engineering, and Finance/Admin routes respectively. Try an unclear request and confirm the helpful fallback. Run both a low-risk and approval-required suggestion, then check Saved Work and Needs Review. Refresh and confirm recent requests persist. All routing, execution, reports, history, and approvals remain mock/local. No AI API, network request, secret, or external action is used.
+
+## Phase 9 — Better reports and simple result review
+
+Workflow results now open with a plain-English review showing what happened, key findings, next steps, reusable copy, and any approval requirement. Saved Work uses cleaner cards and a focused report view with copy buttons and locally stored Helpful / Not helpful feedback. New reports include backward-compatible structured fields while older localStorage reports use safe summary and full-output fallbacks.
+
+Marketing drafts, GitHub issue/Codex prompts, product issue drafts, accountant questions, research summaries, and general action plans expose a ready-to-copy block. Approval explanations say exactly why a review item exists and confirm that nothing was sent or changed. Level 3 actions remain blocked.
+
+To test Phase 9: run Daily Briefing and Weekly Planning, then run Marketing, VEXIS, GitHub, Invoice, and Research workflows. Check the post-run summary, copy confirmation, full report view, usefulness rating persistence, and approval explanation. Refresh to verify reports and ratings persist. No live sources, APIs, payments, reconciliation, tax submission, publishing, or external tool actions are connected.

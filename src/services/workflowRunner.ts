@@ -103,6 +103,15 @@ const templates: Record<string, MockReportTemplate> = {
 }
 
 const personalisedWorkflows = new Set(['business-plan','funding','automation','self-audit','marketing','research'])
+function reusableText(workflowId:string,template:MockReportTemplate):string{
+ const labelled=(label:string)=>template.details.find(item=>item.startsWith(label))?.slice(label.length).trim()
+ if(workflowId==='marketing')return [labelled('Hook:'),labelled('Draft post:'),labelled('CTA:')].filter(Boolean).join('\n\n')
+ if(workflowId==='github')return labelled('Ready-to-paste Codex/OpenHands prompt:')||template.details.join('\n')
+ if(workflowId==='vexis')return labelled('GitHub issue draft:')||template.details.join('\n')
+ if(workflowId==='invoice')return `Questions for my accountant\n\n${labelled('Accountant questions:')||template.details[0]}\n\nThis is a draft for review, not final accounting, tax, or legal advice.`
+ if(workflowId==='research')return `${template.summary}\n\n${template.actions.map(item=>`• ${item}`).join('\n')}\n\nLive sources are not connected in this MVP.`
+ return template.actions.map((item,index)=>`${index+1}. ${item}`).join('\n')
+}
 function profileSection(profile?:BusinessProfile,workflowId?:string,founder?:FounderProfile,agentId?:string):string {
   if(!profile)return ''
   const tailored=personalisedWorkflows.has(workflowId||'')?`\nPERSONALISATION NOTE\nRecommendations are framed for ${profile.businessName}'s ${profile.productOrService}, serving ${profile.targetCustomer}. The current goal is “${profile.currentGoal}” and the main constraint is “${profile.biggestChallenge}”. Use a ${profile.preferredTone} tone and ${profile.riskComfort} risk posture.\n`:''
@@ -125,6 +134,8 @@ export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, p
     createdAt:new Date().toISOString(), usefulnessRating:null, approvalNeeded, riskNote:template.riskNote,
     futureIntegrationNote:template.futureIntegrationNote, source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
     permissionLevel:approvalNeeded?2:1, estimatedCostMode:'cheap',
+    workflowId:workflow.id,plainEnglishSummary:template.summary,keyFindings:template.findings,recommendedNextSteps:template.actions,copyableText:reusableText(workflow.id,template),
+    approvalSummary:approvalNeeded?`This workflow prepared a ${workflow.name.toLowerCase()} draft. Anything that could affect an external tool is waiting in Approvals instead of being sent automatically.`:undefined,
     contextUsed:profile?{businessName:profile.businessName,stage:profile.stage,industry:profile.industry,currentGoal:profile.currentGoal,budgetLevel:profile.budgetLevel}:undefined
   }
 }
