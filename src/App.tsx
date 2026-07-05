@@ -31,11 +31,11 @@ export function App() {
  const [runError,setRunError]=useState('')
  const [promptResult,setPromptResult]=useState<MockAgentResult|null>(null)
  useEffect(()=>{saveLocal('operator.workflows',workflows)},[workflows]); useEffect(()=>{saveLocal('operator.reports',reports)},[reports]); useEffect(()=>{saveLocal('operator.approvals',approvals)},[approvals])
- async function run(id:string){
+ async function run(id:string,userCommand?:string){
   const wf=workflows.find(w=>w.id===id); if(!wf||running)return
   setRunning(id); setResult(null); setRunError(''); setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'running'}:w))
   try{
-   const bundle=await executeWorkflow(wf,businessProfile||undefined,founderProfile||undefined)
+   const bundle=await executeWorkflow(wf,businessProfile||undefined,founderProfile||undefined,userCommand)
    if(bundle.result.status==='blocked'){setWorkflows(v=>v.map(w=>w.id===id?{...w,status:'ready'}:w));setRunError(bundle.result.summary);setToast('Level 3 execution blocked locally');setTimeout(()=>setToast(''),4200);return}
    const report=bundle.report!;const approval=bundle.approval
    setReports(v=>[report,...v]); if(approval)setApprovals(v=>[approval,...v])

@@ -211,3 +211,11 @@ First-time users now complete a six-step, mobile-first setup covering their name
 To test Phase 7: clear the setup from **Settings → Your setup**, complete all six steps, refresh to confirm persistence, then compare recommendations after changing goals. Run a recommended workflow and confirm its report and any review item remain local. At 390×844, verify every step, Back/Next, goal selection, navigation, and setup reset remain usable.
 
 The setup has no cloud sync and must not contain passwords or secrets. Resetting setup returns to onboarding while preserving saved work and review history. A future Supabase migration must add authentication, Row Level Security, server validation, and audit controls before storing profile data remotely.
+
+## Phase 8 — Smart Command Input and guided workflow router
+
+Home now lets a user describe what they need in plain English. A local keyword router recommends the best helper and workflow, explains why it fits, previews the result, and shows the safety boundary before anything runs. Users can run the suggestion, edit their request, or select another workflow. Recent requests are stored only in `smallbiz_command_history` in localStorage.
+
+Supported examples include planning a week, turning feedback into tasks, writing a founder post, preparing a coding prompt, reviewing invoices, comparing competitors or tools, and drafting a customer reply. Unknown requests fall back to Founder Ops and a simple priorities workflow instead of blocking the user.
+
+To test: enter `write a founder post`, `prepare a coding prompt`, and `review invoices`; confirm the Marketing, Engineering, and Finance/Admin routes respectively. Try an unclear request and confirm the helpful fallback. Run both a low-risk and approval-required suggestion, then check Saved Work and Needs Review. Refresh and confirm recent requests persist. All routing, execution, reports, history, and approvals remain mock/local. No AI API, network request, secret, or external action is used.

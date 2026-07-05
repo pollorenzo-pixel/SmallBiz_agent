@@ -115,13 +115,13 @@ function formatReport(template: MockReportTemplate, approvalNeeded: boolean, pro
   return `${profileSection(profile,workflowId,founder,agentId)}EXECUTIVE SUMMARY\n${profile&&personalisedWorkflows.has(workflowId||'')?`For ${profile.businessName}: `:''}${template.summary}\n\nKEY FINDINGS\n${template.findings.map(item=>`• ${item}`).join('\n')}\n\nRECOMMENDED NEXT ACTIONS\n${template.actions.map((item,index)=>`${index+1}. ${item}`).join('\n')}\n\nFULL MOCK OUTPUT\n${template.details.map(item=>`• ${item}`).join('\n')}\n\nAPPROVAL / RISK NOTE\n${template.riskNote}\nApproval needed: ${approvalNeeded ? 'Yes — a local approval preview was created.' : 'No.'}\n\nFUTURE INTEGRATION NOTE\n${template.futureIntegrationNote}\nNo external action was taken.`
 }
 
-export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, profile?:BusinessProfile,founder?:FounderProfile): Promise<AgentOutput> {
-  await generateMockCompletion({ agentId:workflow.assignedAgent, prompt:workflow.name })
+export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, profile?:BusinessProfile,founder?:FounderProfile,userCommand?:string): Promise<AgentOutput> {
+  await generateMockCompletion({ agentId:workflow.assignedAgent, prompt:userCommand||workflow.name })
   const template = templates[workflow.id]
   if (!template) throw new Error('No local mock report template is available for this workflow.')
   return {
-    id:crypto.randomUUID(), agentId:workflow.assignedAgent, title:`${workflow.name} · Mock report`, summary:template.summary,
-    fullOutput:formatReport(template, approvalNeeded,profile,workflow.id,founder,workflow.assignedAgent), tags:[...template.tags, workflow.riskLevel, 'local-mock'],
+    id:crypto.randomUUID(), agentId:workflow.assignedAgent, title:`${workflow.name} · Mock report`, summary:userCommand?`Prepared for “${userCommand}”: ${template.summary}`:template.summary,
+    fullOutput:`${userCommand?`YOUR REQUEST\n“${userCommand}”\n\n`:''}${formatReport(template, approvalNeeded,profile,workflow.id,founder,workflow.assignedAgent)}`, tags:[...template.tags, workflow.riskLevel, 'local-mock'],
     createdAt:new Date().toISOString(), usefulnessRating:null, approvalNeeded, riskNote:template.riskNote,
     futureIntegrationNote:template.futureIntegrationNote, source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
     permissionLevel:approvalNeeded?2:1, estimatedCostMode:'cheap',

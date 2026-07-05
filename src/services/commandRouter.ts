@@ -1,0 +1,26 @@
+import type { Agent, CommandHistoryItem, CommandRouteSuggestion, FounderProfile, Workflow } from '../types'
+import { isRecordArray, loadLocal, saveLocal } from './storage'
+
+const HISTORY_KEY='smallbiz_command_history'
+type RouteRule={terms:string[];agentId:string;workflowId:string;need:string;reason:string}
+const rules:RouteRule[]=[
+ {terms:['plan my week','weekly','next week'],agentId:'founder',workflowId:'weekly',need:'plan and prioritise the week',reason:'You want a clear plan for the week ahead.'},
+ {terms:['plan','priorit','overwhelm','where do i start','don’t know where','dont know where','focus'],agentId:'founder',workflowId:'daily',need:'choose the most useful next priorities',reason:'Founder Ops is best at turning a busy situation into clear next steps.'},
+ {terms:['feedback','roadmap','product issue','users','vexis'],agentId:'product',workflowId:'vexis',need:'turn customer feedback into product tasks',reason:'This sounds like product feedback that needs to become practical roadmap work.'},
+ {terms:['code','coding','bug','github','implementation','codex','feature'],agentId:'engineering',workflowId:'github',need:'prepare a clear technical task',reason:'Engineering can turn your idea into a scoped coding prompt with tests and guardrails.'},
+ {terms:['post','caption','launch','copy','reddit','instagram','marketing'],agentId:'marketing',workflowId:'marketing',need:'create a clear marketing draft',reason:'This sounds like content you want shaped into a polished draft in your voice.'},
+ {terms:['invoice','bookkeep','accountant','expense','admin'],agentId:'finance',workflowId:'invoice',need:'review financial admin safely',reason:'Finance/Admin can organise the notes and flag anything that needs human checking.'},
+ {terms:['research','compare','competitor','tools','market'],agentId:'research',workflowId:'research',need:'structure a useful research comparison',reason:'Research can organise the question, mock findings, caveats, and next steps.'},
+ {terms:['reply','customer','tester','lead','community','comment'],agentId:'customer',workflowId:'marketing',need:'prepare a thoughtful reply',reason:'Customer/Community is the best helper for the response; the draft workflow is the closest safe next step.'}
+]
+const preview:Record<string,string>={daily:'We’ll create a short list of priorities, decisions, and next actions.',weekly:'We’ll review the week, identify blockers, and prepare a practical plan.',vexis:'We’ll summarise the feedback, find the user need, and draft product tasks.',github:'We’ll prepare a coding brief, implementation steps, tests, and safety notes.',marketing:'We’ll create a hook, full draft, short version, call to action, and tone notes.',invoice:'We’ll review mock invoice notes, flag uncertainty, and prepare anything sensitive for your review.',research:'We’ll frame the question, compare mock evidence, explain caveats, and suggest next steps.'}
+
+export function routeCommand(command:string,profile:FounderProfile|undefined,agents:Agent[],workflows:Workflow[]):CommandRouteSuggestion{
+ const text=command.trim().toLowerCase();const matches=rules.map((rule,index)=>({rule,index,score:rule.terms.reduce((sum,term)=>sum+(text.includes(term)?(term.includes(' ')?3:2):0),0)})).filter(item=>item.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)
+ const matched=matches[0]?.rule;const fallback=rules[1];const requested=(matched||fallback).workflowId;const workflowId=workflows.some(item=>item.id===requested)?requested:'daily'
+ const workflow=workflows.find(item=>item.id===workflowId);const agentId=agents.some(item=>item.id===(matched||fallback).agentId)?(matched||fallback).agentId:(workflow?.assignedAgent||'founder')
+ const alternatives=rules.map(item=>item.workflowId).filter((id,index,list)=>id!==workflowId&&list.indexOf(id)===index&&workflows.some(w=>w.id===id)).slice(0,3)
+ const known=Boolean(matched);return {id:crypto.randomUUID(),originalCommand:command.trim(),recommendedAgentId:agentId,recommendedWorkflowId:workflowId,confidence:!known?'low':matches[0].score>=3?'high':'medium',reason:known?matched!.reason:`I’m not completely sure yet, so ${profile?.name||'you'} can start with a simple priorities check and adjust the workflow before running it.`,interpretedNeed:known?matched!.need:'work out the clearest next step',safetyNote:workflow?.requiresApproval?'This creates a local draft and a review item. Nothing will be sent or changed.':'Nothing will be sent or changed. This only creates a local draft.',suggestedNextStep:preview[workflowId]||'We’ll prepare a local draft you can review.',alternativeWorkflowIds:alternatives}
+}
+export function getCommandHistory():CommandHistoryItem[]{return loadLocal(HISTORY_KEY,[],isRecordArray<CommandHistoryItem>).filter(item=>typeof item.command==='string'&&typeof item.recommendedWorkflowId==='string').slice(0,6)}
+export function addCommandHistory(suggestion:CommandRouteSuggestion):CommandHistoryItem[]{const item={id:suggestion.id,command:suggestion.originalCommand,recommendedAgentId:suggestion.recommendedAgentId,recommendedWorkflowId:suggestion.recommendedWorkflowId,createdAt:new Date().toISOString()};const history=[item,...getCommandHistory().filter(old=>old.command!==item.command)].slice(0,6);saveLocal(HISTORY_KEY,history);return history}

@@ -53,6 +53,14 @@ export interface WorkflowResult {
   reportSummary: string; approvalId?: string; riskLevel: RiskLevel; createdAt: string
   providerName?:string; simulatedTools?:string[]; permissionDecision?:string; executionResultId?:string
 }
+export interface CommandRouteSuggestion {
+  id:string; originalCommand:string; recommendedAgentId:string; recommendedWorkflowId:string
+  confidence:'low'|'medium'|'high'; reason:string; interpretedNeed:string; safetyNote:string
+  suggestedNextStep:string; alternativeWorkflowIds:string[]
+}
+export interface CommandHistoryItem {
+  id:string; command:string; recommendedAgentId:string; recommendedWorkflowId:string; createdAt:string
+}
 export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string
   permissions: PermissionLevel[]; riskLevel: RiskLevel
