@@ -365,3 +365,11 @@ Validation for this phase:
 npm run typecheck
 npm run build
 ```
+
+## Phase 19: AI Goal Orchestrator Backbone
+
+Phase 19 adds a local AI Goal Orchestrator Backbone for planning one business goal across the existing AI team. The MVP remains React + Vite, TypeScript, mock/static data, and localStorage only: there is no backend, Supabase, OpenAI/API call, secret, external execution, deployment, or integration action.
+
+The orchestrator uses deterministic keyword rules to analyse a goal, choose one lead agent and supporting agents, build a coordinated multi-agent plan, classify permission levels, run safe mock/local execution steps, and save one professional report into Saved Work. Level 2 items are converted into local approval previews only, such as future email drafts, GitHub issue drafts, workflow triggers, database updates, or payment draft previews. Level 3 requests such as payments, bank reconciliation, tax submissions, production data deletion, legal/financial commitments, and irreversible actions are blocked and explained without creating executable actions.
+
+This backbone is intentionally shaped for later compatibility with a central OpenAI AI Gateway / LLM brain, a workflow engine, Supabase persistence, and real integrations, while keeping every Phase 19 behavior local, deterministic, permission-aware, and safe for the current MVP.

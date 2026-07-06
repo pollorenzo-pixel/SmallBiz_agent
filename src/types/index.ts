@@ -105,6 +105,14 @@ export interface ConnectionDraftBundle { draft:ConnectionDraft; output:AgentOutp
 export interface DailyFocusSummary { projectId?:string; projectName?:string; topPriorities:ProjectActionItem[]; stuckItems:ProjectActionItem[]; nextMilestone?:ProjectMilestone; pendingApprovals:Approval[]; latestReport?:AgentOutput; suggestedAction:string; suggestedAgentId:string; focusMessage:string }
 export interface EndOfDayReviewInput { projectId?:string; doneToday:string; stillBlocked:string; moveToTomorrow:string; noteForAi:string }
 
+export interface Goal { id:string; title:string; description:string; status:'planned'|'running'|'completed'|'needs-approval'|'blocked'; priority:ProjectPriority; createdAt:string; projectId?:string; profileName?:string }
+export interface GoalAnalysis { goalType:'strategy'|'technical'|'marketing'|'finance'|'research'|'customer'; keywords:string[]; permissionSignals:{hasApproval:boolean;hasRestricted:boolean}; riskSignals:{restricted:boolean;externalAction:boolean}; summary:string }
+export interface GoalPlan { id:string; goalId:string; leadAgentId:string; supportingAgentIds:string[]; steps:GoalExecutionStep[]; riskSummary:string; permissionSummary:string; approvalIds:string[]; reportId?:string; createdAt:string }
+export interface GoalExecutionStep { id:string; title:string; description:string; agentId:string; status:StepStatus; permissionLevel:PermissionLevel; riskLevel:RiskLevel; reason:string; confidence:number; outputSummary?:string; blockedReason?:string }
+export interface GoalExecutionResult { goalPlanId:string; steps:GoalExecutionStep[]; completedSummaries:string[]; blockedSteps:GoalExecutionStep[]; approvalSteps:GoalExecutionStep[]; createdAt:string }
+export interface GoalOrchestratorBundle { goal:Goal; analysis:GoalAnalysis; selectedAgents:{leadAgentId:string;supportingAgentIds:string[]}; plan:GoalPlan; executionResult:GoalExecutionResult; report:AgentOutput; approvals:Approval[] }
+
+
 export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string
   permissions: PermissionLevel[]; riskLevel: RiskLevel
