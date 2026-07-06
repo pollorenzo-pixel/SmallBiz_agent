@@ -61,6 +61,25 @@ Each plan detail shows its title, builder type, project, date, planning-only bou
 
 Phase 17 is display, review, and copy only. It performs no deployment, repository creation, publishing, messaging, ad launch, spending, payment, backend request, API call, or Level 3 action.
 
+## Phase 18 — Founder Community and Connection Agent
+
+Community is an opt-in, browser-local founder discovery prototype. It contains six clearly fictional founder profiles spanning food, SaaS, wellness, local services, e-commerce, and student/no-code projects. Users can filter suggestions, save or dismiss matches, understand their relevance, and ask the dedicated Founder Community Agent for a thoughtful introduction draft.
+
+Matching and relevance explanations are Level 0. Saving and drafting are local Level 1 actions. Every connection draft is stored in Reports and creates a simulated Level 2 approval preview for possible future one-to-one outreach. The preview cannot send anything. Scraping, contact lookup, mass outreach, contact-list buying, automatic messages, external integrations, and Level 3 actions remain blocked.
+
+### Test Phase 18
+
+1. Open **Community** from the sidebar or **Find Founder Connections** on Home.
+2. Test industry, stage, goal, saved, and drafted filters.
+3. Save a fictional match, refresh, and confirm it remains saved; then unsave it.
+4. Dismiss a match and confirm it is hidden locally.
+5. Draft a message and confirm the approach, long draft, short version, CTA, tone, and safety note appear.
+6. Confirm the draft is saved in Reports and a Level 2 simulated approval preview appears in Approvals.
+7. Run **Founder Connection Finder** from Workflows and confirm it produces a local report and approval preview.
+8. Test around 390px wide and confirm cards, chips, and draft controls remain comfortable.
+
+All profiles are fictional examples. No real founder network, API, contact database, email, social account, scraping tool, or messaging integration is connected, and no outreach is sent.
+
 ## Phase 6.5 — Simple Human-Friendly UI Refresh
 
 Phase 6.5 makes the app calmer and easier for non-technical users while preserving the existing local architecture. Navigation now uses **Home**, **Your AI Team**, **Help Menu**, **Needs Review**, and **Saved Work**. Home leads with one clear question, six familiar quick actions, review status, recent work, and today’s priorities. Agent and task cards use plain language, larger touch targets, shorter descriptions, and progressive disclosure for technical details.

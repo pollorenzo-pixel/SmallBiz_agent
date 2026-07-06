@@ -99,10 +99,18 @@ const templates: Record<string, MockReportTemplate> = {
     details:['Research question: What makes an AI operator trustworthy for a solo founder?','Evidence basis: Illustrative mock findings only; no live web or database research occurred.','Recommendation: Prioritise transparent controls before expanding autonomy.'],
     riskNote:'Low risk · mock research with no live sources; findings should not be treated as validated evidence.',
     futureIntegrationNote:'A future research adapter could gather cited sources through approved providers and preserve provenance in the report.', tags:['research','trust','operator-design','mock-evidence']
+  },
+  'founder-connections': {
+    summary:'Three fictional founder peers stand out as useful, low-pressure connections based on stage, goals, and complementary experience.',
+    findings:['Best match: a fictional founder at a similar validation stage.','Why they fit: shared interest in early customer evidence and small experiments.','Second match: a complementary founder who can compare local marketing lessons.','All match data is illustrative; no real founder network or contact database was accessed.'],
+    actions:['Open Community to review the fictional matches.','Save only the connections that feel genuinely relevant.','Personalise any draft before considering future one-to-one outreach.'],
+    details:['Suggested approach: exchange one practical lesson rather than making a sales pitch.','Draft connection message: Hi — I think we may have useful early-stage lessons to swap. Would you be open to a short, no-pressure exchange?','Approval-needed item: any future real outreach must be reviewed first.','Safety: no scraping, contact lookup, email, DM, or external action occurred.'],
+    riskNote:'Medium risk · matching is Level 0; drafting is Level 1; future outreach is a simulated Level 2 preview only.',
+    futureIntegrationNote:'A future opt-in founder directory or messaging provider would require consent, server-side controls, rate limits, and explicit approval.', tags:['community','founder-matches','connection-draft','fictional-profiles']
   }
 }
 
-const personalisedWorkflows = new Set(['business-plan','funding','automation','self-audit','marketing','research'])
+const personalisedWorkflows = new Set(['business-plan','funding','automation','self-audit','marketing','research','founder-connections'])
 function reusableText(workflowId:string,template:MockReportTemplate):string{
  const labelled=(label:string)=>template.details.find(item=>item.startsWith(label))?.slice(label.length).trim()
  if(workflowId==='marketing')return [labelled('Hook:'),labelled('Draft post:'),labelled('CTA:')].filter(Boolean).join('\n\n')
@@ -110,13 +118,14 @@ function reusableText(workflowId:string,template:MockReportTemplate):string{
  if(workflowId==='vexis')return labelled('GitHub issue draft:')||template.details.join('\n')
  if(workflowId==='invoice')return `Questions for my accountant\n\n${labelled('Accountant questions:')||template.details[0]}\n\nThis is a draft for review, not final accounting, tax, or legal advice.`
  if(workflowId==='research')return `${template.summary}\n\n${template.actions.map(item=>`• ${item}`).join('\n')}\n\nLive sources are not connected in this MVP.`
+ if(workflowId==='founder-connections')return `${template.details.join('\n\n')}\n\nPreview only. Nothing was sent.`
  return template.actions.map((item,index)=>`${index+1}. ${item}`).join('\n')
 }
 function profileSection(profile?:BusinessProfile,workflowId?:string,founder?:FounderProfile,agentId?:string):string {
   if(!profile)return ''
   const tailored=personalisedWorkflows.has(workflowId||'')?`\nPERSONALISATION NOTE\nRecommendations are framed for ${profile.businessName}'s ${profile.productOrService}, serving ${profile.targetCustomer}. The current goal is “${profile.currentGoal}” and the main constraint is “${profile.biggestChallenge}”. Use a ${profile.preferredTone} tone and ${profile.riskComfort} risk posture.\n`:''
   const project=founder?.mainProjects[0]||profile.businessName;const priorities=founder?.currentPriorities.join('; ')||profile.currentGoal
-  const agentNote=agentId==='founder'?`Founder Ops focus: ${priorities}.`:agentId==='product'?`Product context: ${project}; validate against current priorities.`:agentId==='marketing'?`Marketing tone: ${founder?.preferredTone||profile.preferredTone}.`:agentId==='engineering'?`Technical delivery supports ${project}; remain within Level ${founder?.defaultPermissionLevel??1}.`:agentId==='finance'?`Finance boundary: ${founder?.riskPreference||profile.riskComfort} risk preference never permits payments, reconciliation, or tax actions.`:agentId==='research'?`Research framing: ${founder?.businessStage||profile.stage} stage.`:agentId==='customer'?`Customer voice: ${founder?.preferredTone||profile.preferredTone}.`:`Operator priorities: ${priorities}.`
+  const agentNote=agentId==='founder'?`Founder Ops focus: ${priorities}.`:agentId==='product'?`Product context: ${project}; validate against current priorities.`:agentId==='marketing'?`Marketing tone: ${founder?.preferredTone||profile.preferredTone}.`:agentId==='engineering'?`Technical delivery supports ${project}; remain within Level ${founder?.defaultPermissionLevel??1}.`:agentId==='finance'?`Finance boundary: ${founder?.riskPreference||profile.riskComfort} risk preference never permits payments, reconciliation, or tax actions.`:agentId==='research'?`Research framing: ${founder?.businessStage||profile.stage} stage.`:agentId==='community'?`Connection framing: ${founder?.businessStage||profile.stage} stage, ${founder?.preferredTone||profile.preferredTone} tone, opt-in only.`:agentId==='customer'?`Customer voice: ${founder?.preferredTone||profile.preferredTone}.`:`Operator priorities: ${priorities}.`
   return `BUSINESS CONTEXT USED\nBusiness: ${profile.businessName}\nStage: ${profile.stage}\nIndustry: ${profile.industry}\nCurrent goal: ${profile.currentGoal}\nBudget level: ${profile.budgetLevel}\nMain project: ${project}\nCurrent priorities: ${priorities}\nAgent context: ${agentNote}\n${tailored}\n`
 }
 

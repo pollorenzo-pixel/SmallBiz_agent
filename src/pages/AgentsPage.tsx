@@ -4,7 +4,7 @@ import type { FounderProfile, MockAgentResult } from '../types'
 import { Badge } from '../components/Badge'
 import { recommendedAgentIds } from '../services/workflowRecommendations'
 
-const categories:Record<string,string>={'business-builder':'Start',founder:'Run',product:'Launch',engineering:'Build',marketing:'Launch',finance:'Run',research:'Start',customer:'Run',automation:'Automate','self-improvement':'Improve'}
+const categories:Record<string,string>={'business-builder':'Start',founder:'Run',product:'Launch',engineering:'Build',marketing:'Launch',finance:'Run',research:'Start',community:'Connect',customer:'Run',automation:'Automate','self-improvement':'Improve'}
 export function AgentsPage({ founderProfile,submitPrompt }:{founderProfile:FounderProfile;submitPrompt:(prompt:string,agentId?:string)=>MockAgentResult;promptResult:MockAgentResult|null}) {
  const [selected,setSelected]=useState<string|null>(null);const [prompt,setPrompt]=useState('');const [localResult,setLocalResult]=useState<MockAgentResult|null>(null)
  const agent=agents.find(a=>a.id===selected);const recommended=recommendedAgentIds(founderProfile)

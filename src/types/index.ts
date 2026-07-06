@@ -98,6 +98,10 @@ export interface BuilderRun {
   generatedActionIds:string[]; generatedMilestoneIds:string[]; generatedApprovalIds:string[]
 }
 export interface BuilderRunBundle { run:BuilderRun; output:AgentOutput; actions:ProjectActionItem[]; milestones:ProjectMilestone[]; approvals:Approval[] }
+export type FounderMatchStatus='suggested'|'saved'|'dismissed'|'drafted'
+export interface FounderMatch { id:string; name:string; businessName:string; industry:string; niche:string; stage:string; location:string; goals:string[]; matchReason:string; relevanceScore:number; suggestedApproach:string; tags:string[]; status:FounderMatchStatus; createdAt:string }
+export interface ConnectionDraft { id:string; matchId:string; agentId:string; title:string; message:string; shortVersion:string; tone:string; callToAction:string; riskLevel:RiskLevel; approvalId:string; createdAt:string }
+export interface ConnectionDraftBundle { draft:ConnectionDraft; output:AgentOutput; approval:Approval }
 export interface DailyFocusSummary { projectId?:string; projectName?:string; topPriorities:ProjectActionItem[]; stuckItems:ProjectActionItem[]; nextMilestone?:ProjectMilestone; pendingApprovals:Approval[]; latestReport?:AgentOutput; suggestedAction:string; suggestedAgentId:string; focusMessage:string }
 export interface EndOfDayReviewInput { projectId?:string; doneToday:string; stillBlocked:string; moveToTomorrow:string; noteForAi:string }
 
