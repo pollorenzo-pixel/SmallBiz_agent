@@ -373,3 +373,31 @@ Phase 19 adds a local AI Goal Orchestrator Backbone for planning one business go
 The orchestrator uses deterministic keyword rules to analyse a goal, choose one lead agent and supporting agents, build a coordinated multi-agent plan, classify permission levels, run safe mock/local execution steps, and save one professional report into Saved Work. Level 2 items are converted into local approval previews only, such as future email drafts, GitHub issue drafts, workflow triggers, database updates, or payment draft previews. Level 3 requests such as payments, bank reconciliation, tax submissions, production data deletion, legal/financial commitments, and irreversible actions are blocked and explained without creating executable actions.
 
 This backbone is intentionally shaped for later compatibility with a central OpenAI AI Gateway / LLM brain, a workflow engine, Supabase persistence, and real integrations, while keeping every Phase 19 behavior local, deterministic, permission-aware, and safe for the current MVP.
+
+## Phase 20: Local Agentic Execution and Memory Foundation
+
+Phase 20 extends the Goal Orchestrator into the locked product loop: **tell your AI company what you want done → review the plan → run a local mock execution → review saved work and approvals → memory grows locally**.
+
+After a Phase 19 goal plan is created, the Home screen now offers **Run local agentic execution**. The app creates a persisted `WorkflowRun`, assigns each `AgentExecutionStep` to the selected lead/supporting agents, simulates step-by-step local work, saves a final execution report, creates Level 2 approval previews, blocks Level 3 restricted steps, and stores local `CompanyMemoryEvent` / `AgentLearning` records describing what the AI team learned.
+
+LocalStorage keys added:
+
+- `operator.agenticWorkflowRuns`
+- `operator.companyMemoryEvents`
+- `operator.agentLearnings`
+
+Safety boundaries remain unchanged:
+
+- Level 0 analysis and Level 1 drafts complete locally.
+- Level 2 creates simulated approval previews only.
+- Level 3 restricted actions are blocked and never executed.
+- No emails, GitHub issues, Xero actions, payments, bank reconciliation, tax submissions, legal/financial commitments, production deletes, backend calls, API calls, secrets, or external side effects are introduced.
+
+To test Phase 20: from Home, enter a goal in the Goal Orchestrator, build the goal plan, then choose **Run local agentic execution**. Confirm the execution panel shows the original goal, generated workflow name, lead/support agents, timeline, step statuses, risk levels, permission levels, local outputs, approval previews, blocked-action messaging, memory events, and “what your AI team learned.” Open Saved Work to confirm the execution report was saved. Open Needs Review to confirm Level 2 previews were created locally. Try a restricted goal such as deleting a production database or making a payment and confirm Level 3 stays blocked. Refresh and confirm older/corrupted localStorage data falls back safely.
+
+Validation:
+
+```bash
+npm run typecheck
+npm run build
+```

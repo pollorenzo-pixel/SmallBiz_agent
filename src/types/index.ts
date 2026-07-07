@@ -1,6 +1,7 @@
 export type RiskLevel = 'low' | 'medium' | 'high' | 'restricted'
 export type PermissionLevel = 0 | 1 | 2 | 3
 export type StepStatus = 'not-started' | 'running' | 'completed' | 'needs-approval' | 'blocked'
+export type ExecutionStatus = 'queued' | 'running' | 'completed' | 'approval_required' | 'blocked' | 'failed'
 
 export interface BusinessProfile {
   id: string; founderName: string; businessName: string; stage: string; industry: string
@@ -35,7 +36,7 @@ export interface AgentOutput {
   id: string; agentId: string; title: string; summary: string; fullOutput: string
   tags: string[]; createdAt: string; usefulnessRating: 'useful' | 'not-useful' | null
   approvalNeeded: boolean; riskNote: string; futureIntegrationNote: string
-  source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'|'project-workspace'
+  source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'|'project-workspace'|'agentic-execution'
   permissionLevel?: PermissionLevel; estimatedCostMode?: 'cheap'|'standard'|'premium'; skillStatus?: SkillStatus
   contextUsed?: BusinessContextUsed
   workflowId?:string; plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]
@@ -111,6 +112,35 @@ export interface GoalPlan { id:string; goalId:string; leadAgentId:string; suppor
 export interface GoalExecutionStep { id:string; title:string; description:string; agentId:string; status:StepStatus; permissionLevel:PermissionLevel; riskLevel:RiskLevel; reason:string; confidence:number; outputSummary?:string; blockedReason?:string }
 export interface GoalExecutionResult { goalPlanId:string; steps:GoalExecutionStep[]; completedSummaries:string[]; blockedSteps:GoalExecutionStep[]; approvalSteps:GoalExecutionStep[]; createdAt:string }
 export interface GoalOrchestratorBundle { goal:Goal; analysis:GoalAnalysis; selectedAgents:{leadAgentId:string;supportingAgentIds:string[]}; plan:GoalPlan; executionResult:GoalExecutionResult; report:AgentOutput; approvals:Approval[] }
+
+export interface AgentExecutionResult {
+  id:string; stepId:string; agentId:string; status:ExecutionStatus; summary:string; output:string
+  confidence:number; createdAt:string; warnings:string[]
+}
+export interface AgentExecutionStep {
+  id:string; runId:string; title:string; description:string; agentId:string; status:ExecutionStatus
+  permissionLevel:PermissionLevel; riskLevel:RiskLevel; reason:string; confidence:number
+  startedAt?:string; completedAt?:string; approvalId?:string; blockedReason?:string; result?:AgentExecutionResult
+}
+export interface AgentLearning {
+  id:string; runId:string; agentId:string; learning:string; confidence:number; createdAt:string
+}
+export interface CompanyMemoryEvent {
+  id:string; runId:string; type:'goal'|'decision'|'preference'|'risk'|'approval'|'blocked_action'|'learning'
+  title:string; summary:string; agentId?:string; relatedGoalId?:string; relatedReportId?:string; relatedApprovalId?:string
+  createdAt:string; tags:string[]
+}
+export type BusinessMemoryEvent = CompanyMemoryEvent
+export interface WorkflowRun {
+  id:string; goalId:string; goalTitle:string; goalDescription:string; workflowName:string
+  leadAgentId:string; supportingAgentIds:string[]; status:ExecutionStatus; steps:AgentExecutionStep[]
+  resultIds:string[]; reportId?:string; approvalIds:string[]; memoryEventIds:string[]
+  createdAt:string; updatedAt:string; completedAt?:string; blockedReason?:string
+  localOnlyNotice:string
+}
+export interface AgenticExecutionBundle {
+  run:WorkflowRun; report:AgentOutput; approvals:Approval[]; memoryEvents:CompanyMemoryEvent[]; learnings:AgentLearning[]
+}
 
 
 export interface Integration {
