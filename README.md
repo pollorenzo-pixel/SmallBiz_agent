@@ -566,3 +566,36 @@ The locked architecture is now represented in local code:
   - Level 2: approval required before future execution.
   - Level 3: blocked in the MVP.
 - Coding tasks route to `coding-bounded`, which is limited to one bounded deliverable, a starter foundation, a roadmap, and follow-up task suggestions. No Codex/OpenHands/GitHub execution occurs.
+
+## Phase 26 — Production Readiness & UI Simplification
+
+Phase 26 narrows the production-preview experience into a simpler founder command center. The app still runs locally and remains backend-ready only; no deploy was performed.
+
+### What changed
+
+- Production-preview navigation is now lean: Command Center, Workflows, Reports, Approvals, Projects, and Settings.
+- The user-facing Agents / AI Team and Community surfaces are hidden from production-preview navigation and remain available only in `VITE_APP_MODE=prototype`.
+- Home copy now focuses on “What do you need help with today?” with the main command input, essential quick actions, reports, approvals, and project signals.
+- Workflow lists are reduced in production-preview to essential MVP workflows. Prototype mode keeps the broader demo workflow catalogue.
+- Gmail and Google Calendar workflows remain visible but produce honest “not connected / local preview only” results in production-preview instead of reviewing seeded records.
+- Settings copy now labels Gmail and Calendar as backend-ready / not connected in production-preview and keeps detailed capability registries behind prototype mode.
+- Approval and report copy now clarifies that local approval only records a browser decision and never executes external actions.
+
+### Production-preview content boundary
+
+`production-preview` is the default app mode. It must not seed fictional Gmail inbox records, Google Calendar events, Community profiles, Home activity, reports, or approvals. Any seeded/demo/sample content belongs behind:
+
+```bash
+VITE_APP_MODE=prototype npm run dev
+```
+
+Real Gmail, Calendar, GitHub, Xero, payment, accounting, database, social, or outreach integrations still require a future backend/OAuth/server-secret layer with scoped permissions, audit logs, and approval gates. No real API calls, OAuth, sends, event writes, GitHub issue creation, Xero/payment/accounting execution, production database writes, deploys, or irreversible external actions were added.
+
+### Safety reminder
+
+The Level 0–3 permission model remains preserved:
+
+- Level 0: read-only summaries and analysis.
+- Level 1: local drafts, plans, and copyable outputs.
+- Level 2: approval previews for sensitive future actions; approving is local-only in this MVP.
+- Level 3: blocked actions such as payments, bank reconciliation, tax submission, production deletion, legal/financial commitments, deployment, and irreversible changes.
