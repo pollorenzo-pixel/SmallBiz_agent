@@ -3,6 +3,7 @@
 export const futureAdapters = {
   githubIntegration: 'GitHub issue and repository previews',
   gmailIntegration: 'Gmail read signals and email drafts',
+  calendarIntegration: 'Google Calendar event review, briefing, and approval-gated event drafts',
   xeroIntegration: 'Read-only Xero invoice retrieval',
   supabaseIntegration: 'Supabase business context and persistence',
   codingAgentAdapter: 'Codex/OpenHands task hand-off',

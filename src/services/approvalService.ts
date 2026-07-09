@@ -14,6 +14,13 @@ export function createApproval(workflow: Workflow): Approval | null {
     confidence:86, riskLevel:'medium', status:'pending', createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),permissionLevel:2,
     payloadPreview:JSON.stringify({mode:'gmail-send-email-preview',workflowId:workflow.id,externalExecution:false,gmailOAuthConnected:false,sendEmail:false,level3Blocked:['payments','tax submissions','bank reconciliation','legal commitments']},null,2)
   }
+  if(workflow.id==='calendar-review')return {
+    id:crypto.randomUUID(), title:'Calendar action preview · Meeting follow-up', agentId:'founder',
+    proposedAction:'Review prepared calendar follow-up actions. Approving only records a local calendar approval preview; it cannot create, update, delete, cancel, invite, or send anything in this MVP.',
+    reason:'Creating/updating calendar events, inviting attendees, or sending meeting follow-ups is Level 2 and requires explicit founder approval. Finance, legal, payment, tax, reconciliation, cancellation, deletion, and irreversible commitments remain Level 3 blocked. No real Google Calendar OAuth or API is connected.',
+    confidence:84, riskLevel:'medium', status:'pending', createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),permissionLevel:2,
+    payloadPreview:JSON.stringify({mode:'calendar-action-preview',workflowId:workflow.id,externalExecution:false,googleCalendarOAuthConnected:false,createEvent:false,updateEvent:false,inviteAttendee:false,sendFollowUp:false,level3Blocked:['payments','tax submissions','bank reconciliation','legal commitments','irreversible deletes','unapproved cancellations']},null,2)
+  }
   return {
     id:crypto.randomUUID(), title:`Local preview: ${workflow.name}`, agentId:workflow.assignedAgent,
     proposedAction:`Review the mock ${workflow.name.toLowerCase()} draft. Approving only records a local decision; it cannot execute an external action.`,

@@ -37,7 +37,7 @@ Never create `VITE_OPENAI_API_KEY`, never put production API keys in frontend co
 
 ### Safety guarantees
 
-- Gmail is mock-connected in Phase 23. Google Calendar is not implemented yet.
+- Gmail is mock-connected in Phase 23. Google Calendar is mock-connected in Phase 24.
 - No email is sent, no calendar event is created, no payment is made, no bank transaction is reconciled, no tax document is submitted, no production data is deleted, no code is deployed, and no external coding agent is run.
 - The backend limits body size, prompt length, output tokens, retry count, and provider timeout.
 - Model output is text preparation only and cannot bypass app approval gates.
@@ -50,7 +50,7 @@ Never create `VITE_OPENAI_API_KEY`, never put production API keys in frontend co
 Website builder/deployment is no longer core MVP scope. The next planned phases are:
 
 - Phase 23: Gmail Operator MVP
-- Phase 24: Calendar Scheduling MVP
+- Phase 24: Calendar Integration Foundation
 - Phase 25: Business Onboarding + Business Plan
 - Phase 26: Financial Forecast Generator
 - Phase 27: Daily Briefing + Marketing Operator
@@ -70,6 +70,21 @@ The Gmail safety model is:
 The mock inbox includes an invoice/payment reminder, meeting request, customer support message, marketing opportunity, and low-priority newsletter. Meeting requests may suggest a future Calendar Phase 24 handoff, but no calendar event is created. Invoice/payment messages are handled by Finance/Admin with review-only language; the app cannot pay, reconcile, submit tax, or provide final accounting/legal/tax advice.
 
 Future real Gmail support must use a backend OAuth adapter, scoped permissions, server-side secrets, audit logs, and approval gates before sending anything.
+
+## Phase 24 — Calendar Integration Foundation
+
+Phase 24 adds a mock-first, backend-ready Google Calendar-style integration foundation. It does not use real Google OAuth, Calendar APIs, event reads, event writes, invites, cancellations, meeting emails, or external scheduling. The new `Calendar Briefing Assistant` workflow reviews deterministic mock upcoming events, prepares meeting briefings, suggests questions, highlights blockers, creates follow-up tasks in the report, and queues a simulated Level 2 calendar-action approval preview.
+
+The mock calendar includes an investor call, supplier meeting, product planning session, customer/user feedback call, and finance/admin reminder. Calendar reports show priority meetings, preparation notes, suggested questions, risks, next actions, and copyable briefing notes. Finance/admin reminders remain review-only and cannot pay, reconcile, submit tax, create commitments, or provide final accounting/legal/tax advice.
+
+The Calendar safety model is:
+
+- Reading and summarising calendar events: Level 0
+- Drafting agendas, prep notes, follow-up messages, and proposed event payloads: Level 1
+- Creating/updating calendar events, inviting attendees, or sending meeting follow-ups: Level 2 approval required and simulated only
+- Cancelling important commitments without explicit approval, legal/financial commitments, irreversible deletes, payments, tax submissions, and bank reconciliation: Level 3 blocked
+
+Future real Google Calendar support must use a backend OAuth adapter, scoped permissions, server-side secrets, audit logs, model routing, budget checks, and approval gates before creating, updating, deleting, inviting, or sending anything.
 
 ## Phase 15 — Guided Builder Workflows
 
@@ -341,7 +356,7 @@ Level 3 is always blocked in the MVP. Approval buttons only update local browser
 - `src/services/workflowRunner.ts`: workflow execution boundary.
 - `src/services/approvalService.ts`: approval policy boundary.
 - `src/services/integrationRegistry.ts`: future integration registry.
-- `src/integrations/futureAdapters.ts`: disabled GitHub, Gmail, Xero, Supabase, Codex/OpenHands, orchestration, and webhook placeholders.
+- `src/integrations/futureAdapters.ts`: disabled GitHub, Gmail, Google Calendar, Xero, Supabase, Codex/OpenHands, orchestration, and webhook placeholders.
 
 Potential future systems include OpenAI-compatible APIs, GitHub, Gmail, Xero, Supabase, Slack, Discord, Telegram, OpenClaw, Sim, Codex/OpenHands, webhooks, MCP servers, Companies House/HMRC/Stripe where legally appropriate, and backend/local Excel generation.
 
@@ -507,7 +522,7 @@ The locked architecture is now represented in local code:
 
 - All outputs remain deterministic mock/local outputs.
 - Reports and approvals continue to save in localStorage.
-- No real APIs, backend calls, Gmail, Calendar, GitHub, Xero, payments, webhooks, Supabase, or external execution are enabled.
+- No real external Gmail, Calendar, GitHub, Xero, payments, webhooks, Supabase, or external execution are enabled.
 - Real API keys must never be stored in frontend code, localStorage, or client bundles. Future real keys must use backend environment variables and server-side controls.
 - Level 0–3 permissions remain intact:
   - Level 0: summaries, analysis, recommendations.

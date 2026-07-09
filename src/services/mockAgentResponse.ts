@@ -3,14 +3,15 @@ import type { AgentOutput, Approval, BusinessProfile, FounderProfile, MockAgentR
 
 interface Route { agentId:string; workflowId?:string; source:AgentOutput['source']; category:string }
 
-const restrictedPattern = /\b(make|send|take|process)?\s*(payment|bank reconciliation|reconcile bank|tax submission|delete production|sign contract|auto-?merge|auto-?deploy|deploy to production|spend real tokens|install.*without review)\b/i
-const level2Pattern = /\b(send (an )?email|publish|post (this|it)|create (a )?github issue|trigger (the )?(api|workflow|automation)|submit (the |a )?(application|form)|update (the )?(database|platform-wide skill)|run (codex|openhands))\b/i
+const restrictedPattern = /\b((make|send|take|process)?\s*(payment|bank reconciliation|reconcile bank|tax submission|delete production|sign contract|auto-?merge|auto-?deploy|deploy to production|spend real tokens|install.*without review|legal commitment|financial commitment|irreversible delete)|cancel\s+(important business commitment|commitment|investor call|calendar event|meeting)|delete\s+(calendar event|event|calendar)|remove\s+attendee)\b/i
+const level2Pattern = /\b(send (an )?email|send (meeting )?follow-?up|publish|post (this|it)|create (a )?github issue|create (a )?(calendar )?event|update (the )?(calendar event|event details|database|platform-wide skill)|invite (an )?attendee|trigger (the )?(api|workflow|automation)|submit (the |a )?(application|form)|run (codex|openhands))\b/i
 
 export function routePrompt(prompt:string, preferredAgentId?:string):Route {
   const value=prompt.toLowerCase()
   if(preferredAgentId)return {agentId:preferredAgentId,source:'direct-agent',category:preferredAgentId}
   if(/teach yourself|learn how|add a skill|update yourself|new skill/.test(value))return {agentId:'self-improvement',source:'skill-gap',category:'skill-gap'}
   if(/audit (the app|smallbiz)|self.audit|improve smallbiz/.test(value))return {agentId:'self-improvement',workflowId:'self-audit',source:'self-audit',category:'self-audit'}
+  if(/calendar|schedule|meeting briefing|upcoming meetings/.test(value))return {agentId:'founder',workflowId:'calendar-review',source:'command-center',category:'founder-ops'}
   if(/automat|process map|lead follow|invoice chasing/.test(value))return {agentId:'automation',workflowId:'automation',source:'automation-blueprint',category:'automation'}
   if(/fund|no money|no capital|grant|loan|investor/.test(value))return {agentId:'business-builder',workflowId:'funding',source:'business-builder',category:'funding'}
   if(/business plan|one.page|financial forecast|start building|business idea|launch plan|roadmap/.test(value))return {agentId:'business-builder',workflowId:'business-plan',source:'business-builder',category:'business-plan'}
@@ -44,7 +45,7 @@ function makeSkillGap(prompt:string):SkillGapReport {
 
 export function generateMockAgentResponse(prompt:string, preferredAgentId?:string, profile?:BusinessProfile,founder?:FounderProfile):MockAgentResult {
   const trimmed=prompt.trim(); const route=routePrompt(trimmed,preferredAgentId)
-  if(restrictedPattern.test(trimmed))return {agentId:route.agentId,prompt:trimmed,recommendedWorkflowId:route.workflowId,blockedReason:'Level 3 request blocked. SmallBiz Agent cannot make payments, reconcile banking, submit tax, delete production data, deploy, sign commitments, spend real tokens, or install unreviewed skills.'}
+  if(restrictedPattern.test(trimmed))return {agentId:route.agentId,prompt:trimmed,recommendedWorkflowId:route.workflowId,blockedReason:'Level 3 request blocked. SmallBiz Agent cannot make payments, reconcile banking, submit tax, delete production data, cancel important commitments, delete calendar events, deploy, sign commitments, spend real tokens, or install unreviewed skills.'}
   const isSkillGap=route.category==='skill-gap'; const skillGap=isSkillGap?makeSkillGap(trimmed):undefined
   const approvalNeeded=isSkillGap||level2Pattern.test(trimmed)
   const permissionLevel:PermissionLevel=approvalNeeded?2:1

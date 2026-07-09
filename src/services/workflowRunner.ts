@@ -1,5 +1,6 @@
 import type { AgentOutput, BusinessProfile, FounderProfile, Workflow } from '../types'
 import { generateMockCompletion } from './modelAdapter'
+import { calendarReviewToReport, reviewMockCalendar } from './calendarService'
 import { gmailReviewToReport, reviewMockGmailInbox } from './gmailService'
 
 interface MockReportTemplate {
@@ -178,13 +179,14 @@ function formatReport(template: MockReportTemplate, approvalNeeded: boolean, pro
 export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, profile?:BusinessProfile,founder?:FounderProfile,userCommand?:string): Promise<AgentOutput> {
   await generateMockCompletion({ agentId:workflow.assignedAgent, prompt:userCommand||workflow.name })
   if(workflow.id==='gmail-review')return gmailReviewToReport(reviewMockGmailInbox(profile,founder),profile,founder)
+  if(workflow.id==='calendar-review')return calendarReviewToReport(reviewMockCalendar(),profile,founder)
   const template = templates[workflow.id]
   if (!template) throw new Error('No local mock report template is available for this workflow.')
   return {
     id:crypto.randomUUID(), agentId:workflow.assignedAgent, title:`${workflow.name} · Mock report`, summary:userCommand?`Prepared for “${userCommand}”: ${template.summary}`:template.summary,
     fullOutput:`${userCommand?`YOUR REQUEST\n“${userCommand}”\n\n`:''}${formatReport(template, approvalNeeded,profile,workflow.id,founder,workflow.assignedAgent)}`, tags:[...template.tags, workflow.riskLevel, 'local-mock'],
     createdAt:new Date().toISOString(), usefulnessRating:null, approvalNeeded, riskNote:template.riskNote,
-    futureIntegrationNote:template.futureIntegrationNote, estimatedTimeSavedMinutes: ({daily:15,weekly:25,'email-reply-draft':24,'meeting-scheduling':20,'task-organiser':18,'meeting-summary':22,'invoice-followup':18,invoice:18,automation:30,marketing:20,research:35,github:30,'business-plan':45,funding:30,'gmail-review':32} as Record<string,number>)[workflow.id]||12, preparedAction:template.actions[0], approvalRequired:approvalNeeded, outcomeStatus:approvalNeeded?'drafted for approval':'completed locally', source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
+    futureIntegrationNote:template.futureIntegrationNote, estimatedTimeSavedMinutes: ({daily:15,weekly:25,'email-reply-draft':24,'meeting-scheduling':20,'task-organiser':18,'meeting-summary':22,'invoice-followup':18,invoice:18,automation:30,marketing:20,research:35,github:30,'business-plan':45,funding:30,'gmail-review':32,'calendar-review':28} as Record<string,number>)[workflow.id]||12, preparedAction:template.actions[0], approvalRequired:approvalNeeded, outcomeStatus:approvalNeeded?'drafted for approval':'completed locally', source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
     permissionLevel:approvalNeeded?2:1, estimatedCostMode:'cheap',
     workflowId:workflow.id,plainEnglishSummary:template.summary,keyFindings:template.findings,recommendedNextSteps:template.actions,copyableText:reusableText(workflow.id,template),
     approvalSummary:approvalNeeded?`This workflow prepared a ${workflow.name.toLowerCase()} draft. Anything that could affect an external tool is waiting in Approvals instead of being sent automatically.`:undefined,

@@ -12,6 +12,13 @@ export const gmailPromptTemplates={
  approvalRequest:'Create a Level 2 approval preview for sending an email draft. The model output cannot send email or bypass approval gates. Level 3 finance, tax, banking, legal, deletion, and irreversible actions must remain blocked.'
 }
 
+export const calendarPromptTemplates={
+ summarizer:'Summarise calendar events into priority meetings and preparation needs. Reading and summarising is Level 0. Use only provided event data. Do not imply real Google Calendar access unless a backend connector supplied it.',
+ priorityClassifier:'Classify calendar event priority by urgency, business impact, preparation need, attendee risk, and approval requirements. Ask for human review when confidence is low.',
+ prepNotes:'Draft agenda, prep notes, suggested questions, follow-up messages, and proposed event payloads. Drafting is Level 1. Do not create, update, cancel, delete, invite, or send.',
+ approvalRequest:'Create a Level 2 approval preview for creating/updating events, inviting attendees, or sending meeting follow-ups. Level 3 finance, legal, tax, banking, cancellation, deletion, and irreversible actions must remain blocked.'
+}
+
 export const agentPromptTemplates:AgentPromptTemplate[]=[
  {
   id:'founder',
@@ -77,6 +84,7 @@ export function buildGatewaySystemPrompt(agentId:string|undefined,permissionLeve
   'No external action has been taken. Do not claim to send email, create calendar events, make payments, reconcile bank transactions, submit tax documents, delete data, deploy code, or run external agents.',
   'Return JSON where practical using: title, summary, fullOutput, nextActions, approvalItems, tasks, risks, confidence, timeSavedEstimateMinutes, noExternalActionTaken.',
   `Gmail prompt rules: ${Object.values(gmailPromptTemplates).join(' ')}`,
+  `Calendar prompt rules: ${Object.values(calendarPromptTemplates).join(' ')}`,
   `Agent boundaries: ${agent.safetyBoundaries.join(' ')}`
  ].join('\n')
 }

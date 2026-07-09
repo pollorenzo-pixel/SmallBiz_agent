@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { BusinessProfile } from '../types'
 
 export const emptyProfile = (): BusinessProfile => { const now=new Date().toISOString(); return {id:crypto.randomUUID(),founderName:'',businessName:'',stage:'idea',industry:'',productOrService:'',targetCustomer:'',currentGoal:'',biggestChallenge:'',budgetLevel:'lean',preferredTone:'direct',riskComfort:'cautious',desiredIntegrations:[],createdAt:now,updatedAt:now} }
-const integrations=['GitHub','Gmail','Xero','Supabase','Slack','Webhooks','MCP servers','Excel export']
+const integrations=['GitHub','Gmail','Google Calendar','Xero','Supabase','Slack','Webhooks','MCP servers','Excel export']
 
 export function BusinessProfileForm({ initial, onSave, submitLabel='Save business profile' }:{initial:BusinessProfile;onSave:(profile:BusinessProfile)=>void;submitLabel?:string}) {
  const [profile,setProfile]=useState(initial)

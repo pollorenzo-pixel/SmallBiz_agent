@@ -1,6 +1,6 @@
 import type { AIModelRoute, AIGatewayRequest, PermissionLevel } from '../types'
 
-const restrictedPattern = /\b(payment|pay supplier|tax submission|submit tax|bank reconciliation|reconcile bank|delete production|production data|sign contract|legal commitment|financial commitment|irreversible)\b/i
+const restrictedPattern = /\b(payment|pay supplier|tax submission|submit tax|bank reconciliation|reconcile bank|delete production|production data|sign contract|legal commitment|financial commitment|irreversible|cancel\s+(important|commitment|investor|calendar|meeting)|delete\s+(calendar|event)|remove\s+attendee)\b/i
 const codingPattern = /\b(code|coding|github|codex|openhands|repository|pull request|typescript|react|bug|implement|deploy)\b/i
 const reasoningPattern = /\b(research plan|business plan|strategy|complex|workflow plan|automation blueprint|roadmap|funding)\b/i
 const draftPattern = /\b(reply|draft|marketing|email|post|message|follow-up|response)\b/i

@@ -170,7 +170,7 @@ export interface AgenticExecutionBundle {
 
 
 export interface Integration {
-  id: string; name: string; status: 'placeholder'; description: string; authType: string
+  id: string; name: string; status: 'placeholder'|'mock-connected'|'backend-ready'; description: string; authType: string
   permissions: PermissionLevel[]; riskLevel: RiskLevel
 }
 
@@ -189,4 +189,22 @@ export interface GmailReviewResult {
   id:string; status:GmailIntegrationStatus; summary:GmailSummary; priorityEmails:GmailMessage[]; risks:string[]
   suggestedActions:GmailActionPlan[]; draftReplies:GmailDraftReply[]; approvalNeededItems:GmailActionPlan[]
   followUpTasks:string[]; assignedAgentIds:string[]; noExternalActionTaken:boolean; createdAt:string
+}
+
+export type CalendarEventCategory='investor'|'supplier'|'product-planning'|'customer-feedback'|'finance-admin'
+export type CalendarPriority='urgent'|'high'|'medium'|'low'
+export type CalendarIntegrationStatus='mock-connected'|'backend-ready'|'needs-oauth'|'disabled'
+export interface CalendarEvent {
+  id:string; calendarId:string; title:string; description:string; startAt:string; endAt:string; location?:string
+  attendees:string[]; category:CalendarEventCategory; priority:CalendarPriority; riskLevel:RiskLevel; requiresPreparation:boolean
+}
+export interface CalendarActionDraft {
+  id:string; eventId:string; title:string; assignedAgentId:string; permissionLevel:PermissionLevel; riskLevel:RiskLevel
+  proposedAction:string; proposedPayload:Record<string,unknown>; approvalRequired:boolean; blockedReason?:string
+}
+export interface CalendarReviewResult {
+  id:string; status:CalendarIntegrationStatus; events:CalendarEvent[]; priorityEvents:CalendarEvent[]
+  summary:string; preparationNotes:string[]; suggestedQuestions:string[]; risks:string[]
+  nextActions:string[]; followUpTasks:string[]; approvalNeededActions:CalendarActionDraft[]
+  actionDrafts:CalendarActionDraft[]; noExternalActionTaken:boolean; createdAt:string
 }
