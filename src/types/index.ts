@@ -3,6 +3,19 @@ export type PermissionLevel = 0 | 1 | 2 | 3
 export type StepStatus = 'not-started' | 'running' | 'completed' | 'needs-approval' | 'blocked'
 export type ExecutionStatus = 'queued' | 'running' | 'completed' | 'approval_required' | 'blocked' | 'failed'
 
+export type AIProviderMode = 'mock'|'openai-compatible'
+export type AIModelRouteId = 'cheap-admin'|'standard-draft'|'reasoning-plan'|'coding-bounded'|'restricted-blocked'
+export type CostBand = 'low'|'medium'|'high'|'blocked'
+export type BudgetStatus = 'pass'|'warn'|'blocked'
+export type ExecutionMode = 'prepare-only'|'approval-required'|'blocked'
+export interface AIProviderConfig { mode:AIProviderMode; providerName:string; apiBaseUrlPlaceholder?:string; apiKeyPlaceholder?:string; isActive:boolean; notes:string }
+export interface AIModelRoute { id:AIModelRouteId; displayName:string; intendedModelTier:string; reason:string; estimatedCostBand:CostBand; defaultPermissionLevel:PermissionLevel }
+export interface AIGatewayRequest { id:string; taskType:string; prompt:string; title?:string; agentId?:string; workflowId?:string; requestedPermissionLevel?:PermissionLevel; requiresApproval?:boolean; providerConfig?:AIProviderConfig; context?:Record<string,unknown> }
+export interface BudgetGuardResult { estimatedTokenUsage:number; estimatedCostBand:CostBand; budgetStatus:BudgetStatus; reason:string; recommendedCheaperRoute?:AIModelRouteId }
+export interface AIGatewayResult { id:string; requestId:string; providerMode:AIProviderMode; providerName:string; output:string; structuredOutput:Record<string,unknown>; modelRoute:AIModelRoute; budgetGuard:BudgetGuardResult; permission:{level:PermissionLevel;label:string;reason:string}; approval:{requiresApproval:boolean;status:'not-required'|'required'|'blocked';reason:string}; createdAt:string }
+export interface OperatorPlanStep { id:string; title:string; status:StepStatus }
+export interface OperatorPlan { id:string; title:string; detectedIntent:string; assignedAgentId:string; steps:OperatorPlanStep[]; permissionLevel:PermissionLevel; requiresApproval:boolean; modelRoute:AIModelRoute; budgetGuard:BudgetGuardResult; expectedOutput:string; executionMode:ExecutionMode; createdAt:string }
+
 export interface BusinessProfile {
   id: string; founderName: string; businessName: string; stage: string; industry: string
   productOrService: string; targetCustomer: string; currentGoal: string; biggestChallenge: string
@@ -41,6 +54,7 @@ export interface AgentOutput {
   id: string; agentId: string; title: string; summary: string; fullOutput: string
   tags: string[]; createdAt: string; usefulnessRating: 'useful' | 'not-useful' | null
   approvalNeeded: boolean; riskNote: string; futureIntegrationNote: string
+  operatorPlan?:OperatorPlan; aiGateway?:AIGatewayResult
   source?: 'workflow'|'command-center'|'direct-agent'|'business-builder'|'automation-blueprint'|'self-audit'|'skill-gap'|'project-workspace'|'agentic-execution'
   permissionLevel?: PermissionLevel; estimatedCostMode?: 'cheap'|'standard'|'premium'; skillStatus?: SkillStatus
   contextUsed?: BusinessContextUsed
@@ -67,6 +81,7 @@ export interface WorkflowResult {
   reportSummary: string; approvalId?: string; riskLevel: RiskLevel; createdAt: string
   providerName?:string; simulatedTools?:string[]; permissionDecision?:string; executionResultId?:string
   plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]; copyableText?:string; approvalSummary?:string
+  operatorPlan?:OperatorPlan
 }
 export interface CommandRouteSuggestion {
   id:string; originalCommand:string; recommendedAgentId:string; recommendedWorkflowId:string
