@@ -1,4 +1,5 @@
 import type { AgentOutput, BusinessProfile, FounderProfile, GmailActionPlan, GmailDraftReply, GmailIntegrationStatus, GmailMessage, GmailMessageCategory, GmailPriority, GmailReviewResult, GmailSummary, GmailThread, PermissionLevel, RiskLevel } from '../types'
+import { appMode, demoDataUnavailableSummary } from '../config/appMode'
 
 export const gmailIntegrationStatus:GmailIntegrationStatus='mock-connected'
 
@@ -37,6 +38,7 @@ const categoryPermission:Record<GmailMessageCategory,PermissionLevel>={
 const priorityRank:Record<GmailPriority,number>={urgent:4,high:3,medium:2,low:1}
 
 export function getMockGmailThreads():GmailThread[]{
+ if(!appMode.allowsDemoData)return []
  return mockGmailMessages.map(message=>({id:message.threadId,subject:message.subject,messages:[message],category:message.category,priority:message.priority,assignedAgentId:categoryAgent[message.category]}))
 }
 
@@ -63,8 +65,12 @@ function actionFor(message:GmailMessage):GmailActionPlan{
 }
 
 export function reviewMockGmailInbox(profile?:BusinessProfile,founder?:FounderProfile):GmailReviewResult{
- const messages=[...mockGmailMessages].sort((a,b)=>priorityRank[b.priority]-priorityRank[a.priority])
+ const messages=(appMode.allowsDemoData?[...mockGmailMessages]:[]).sort((a,b)=>priorityRank[b.priority]-priorityRank[a.priority])
  const summary:GmailSummary={id:crypto.randomUUID(),totalMessages:messages.length,unreadCount:messages.filter(message=>message.unread).length,priorityCount:messages.filter(message=>priorityRank[message.priority]>=3).length,categories:countCategories(messages),summary:`${messages.length} mock Gmail messages reviewed: ${messages.filter(message=>priorityRank[message.priority]>=3).length} need attention, ${messages.filter(message=>message.category==='newsletter').length} can wait.`,createdAt:new Date().toISOString()}
+ if(!messages.length){
+  summary.summary=demoDataUnavailableSummary('Gmail')
+  return {id:crypto.randomUUID(),status:gmailIntegrationStatus,summary,priorityEmails:[],risks:['No real Gmail OAuth is connected.','Demo/sample inbox data is disabled in production-preview mode.','No email has been read, drafted, sent, archived, labelled, or changed.','Future Gmail support requires backend OAuth, server-side secrets, permission review, audit logs, and approval gates.'],suggestedActions:[],draftReplies:[],approvalNeededItems:[],followUpTasks:['Run a non-integration workflow to create a local draft, or configure backend Gmail OAuth in a future backend phase.'],assignedAgentIds:['founder'],noExternalActionTaken:true,createdAt:new Date().toISOString()}
+ }
  const actions=messages.map(actionFor)
  const drafts=messages.map(message=>draftFor(message,profile)).filter((draft):draft is GmailDraftReply=>Boolean(draft))
  const approvalNeededItems=actions.filter(action=>action.approvalRequired)
@@ -75,16 +81,16 @@ export function gmailReviewToReport(review:GmailReviewResult,profile?:BusinessPr
  const priorityLines=review.priorityEmails.map(message=>`${message.priority.toUpperCase()} · ${categoryLabel[message.category]} · ${message.subject} (${message.from})`)
  const drafts=review.draftReplies.map(draft=>`To: ${draft.to}\nSubject: ${draft.subject}\n\n${draft.body}`).join('\n\n---\n\n')
  const fullOutput=[
-  `GMAIL INTEGRATION STATUS\n${review.status} · backend ready · mock inbox only`,
+  `GMAIL INTEGRATION STATUS\n${review.status} · backend ready · ${appMode.allowsDemoData?'mock inbox only':'no connected account; demo inbox disabled'}`,
   profile?`BUSINESS CONTEXT USED\nBusiness: ${profile.businessName}\nFounder tone: ${founder?.preferredTone||profile.preferredTone}\nCurrent goal: ${profile.currentGoal}`:'',
   `INBOX SUMMARY\n${review.summary.summary}\nUnread: ${review.summary.unreadCount}\nPriority: ${review.summary.priorityCount}`,
-  `PRIORITY EMAILS\n${priorityLines.map(line=>`• ${line}`).join('\n')}`,
-  `SUGGESTED ACTIONS\n${review.suggestedActions.map(action=>`• ${action.title}: ${action.suggestedAction}`).join('\n')}`,
-  `DRAFT REPLIES\n${drafts}`,
+  `PRIORITY EMAILS\n${priorityLines.length?priorityLines.map(line=>`• ${line}`).join('\n'):'None. No Gmail account or demo inbox is connected.'}`,
+  `SUGGESTED ACTIONS\n${review.suggestedActions.length?review.suggestedActions.map(action=>`• ${action.title}: ${action.suggestedAction}`).join('\n'):'No message actions were generated.'}`,
+  `DRAFT REPLIES\n${drafts||'None. No Gmail messages were reviewed.'}`,
   `APPROVAL-NEEDED ITEMS\n${review.approvalNeededItems.map(action=>`• Send draft for ${action.title} after founder review.`).join('\n')||'None.'}`,
   `FOLLOW-UP TASKS\n${review.followUpTasks.map((task,index)=>`${index+1}. ${task}`).join('\n')}`,
   `RISKS AND BOUNDARIES\n${review.risks.map(risk=>`• ${risk}`).join('\n')}`,
-  'NO EXTERNAL ACTION TAKEN\nSmallBiz Agent reviewed mock messages only. No Gmail API, OAuth, sending, payment, reconciliation, calendar event, or external side effect occurred.'
+  `NO EXTERNAL ACTION TAKEN\nSmallBiz Agent ${appMode.allowsDemoData?'reviewed mock messages only':'did not access Gmail and did not load demo messages'}. No Gmail API, OAuth, sending, payment, reconciliation, calendar event, or external side effect occurred.`
  ].filter(Boolean).join('\n\n')
- return {id:crypto.randomUUID(),agentId:'founder',title:'Review Gmail Inbox · Mock report',summary:review.summary.summary,plainEnglishSummary:'SmallBiz Agent reviewed the mock Gmail inbox, prioritised important messages, prepared draft replies, and queued send-email approvals where useful.',fullOutput,tags:['gmail','email','inbox-review','time-back','approval','local-mock'],createdAt:review.createdAt,usefulnessRating:null,approvalNeeded:review.approvalNeededItems.length>0,riskNote:'Medium risk, Level 2 preview · draft replies are prepared only; nothing was sent. Finance/payment content remains Level 3 blocked.',futureIntegrationNote:'Future Gmail OAuth must run through backend/serverless adapters, scoped permissions, audit logs, and approval gates.',source:'workflow',permissionLevel:2,estimatedCostMode:'cheap',workflowId:'gmail-review',estimatedTimeSavedMinutes:32,preparedAction:'Review priority emails and approve only the send-email drafts you want to send later.',approvalRequired:true,outcomeStatus:'gmail inbox reviewed locally',keyFindings:[review.summary.summary,...priorityLines, ...review.risks],recommendedNextSteps:['Review draft replies before approving any send-email preview.','Check the invoice reminder with source documents; do not pay or reconcile in the MVP.','Use the meeting request as a Calendar Phase 24 handoff later, but do not schedule yet.','Ignore the low-priority newsletter unless time allows.'],copyableText:drafts,approvalSummary:'Send-email draft previews were added to Approvals. Approving them in this MVP only records a local decision and never sends email.',contextUsed:profile?{businessName:profile.businessName,stage:profile.stage,industry:profile.industry,currentGoal:profile.currentGoal,budgetLevel:profile.budgetLevel}:undefined}
+ return {id:crypto.randomUUID(),agentId:'founder',title:`Review Gmail Inbox · ${appMode.allowsDemoData?'Mock report':'Local preview'}`,summary:review.summary.summary,plainEnglishSummary:review.priorityEmails.length?'SmallBiz Agent reviewed the mock Gmail inbox, prioritised important messages, prepared draft replies, and queued send-email approvals where useful.':'Gmail is backend-ready but no real account is connected and production-preview does not load demo inbox data.',fullOutput,tags:['gmail','email','inbox-review','time-back','approval','local-mock'],createdAt:review.createdAt,usefulnessRating:null,approvalNeeded:review.approvalNeededItems.length>0,riskNote:'Medium risk, Level 2 preview · draft replies are prepared only; nothing was sent. Finance/payment content remains Level 3 blocked.',futureIntegrationNote:'Future Gmail OAuth must run through backend/serverless adapters, scoped permissions, audit logs, and approval gates.',source:'workflow',permissionLevel:2,estimatedCostMode:'cheap',workflowId:'gmail-review',estimatedTimeSavedMinutes:review.priorityEmails.length?32:0,preparedAction:review.priorityEmails.length?'Review priority emails and approve only the send-email drafts you want to send later.':'Connect a future backend Gmail adapter before reviewing real inbox data.',approvalRequired:review.approvalNeededItems.length>0,outcomeStatus:review.priorityEmails.length?'gmail inbox reviewed locally':'no gmail data connected',keyFindings:[review.summary.summary,...priorityLines, ...review.risks],recommendedNextSteps:review.priorityEmails.length?['Review draft replies before approving any send-email preview.','Check the invoice reminder with source documents; do not pay or reconcile in the MVP.','Use the meeting request as a Calendar Phase 24 handoff later, but do not schedule yet.','Ignore the low-priority newsletter unless time allows.']:['Run a non-integration workflow to create local draft work.','Add backend OAuth and permission review in a future integration phase before reading Gmail.','Keep email sends approval-gated and server-side only.'],copyableText:drafts||undefined,approvalSummary:review.approvalNeededItems.length?'Send-email draft previews were added to Approvals. Approving them in this MVP only records a local decision and never sends email.':undefined,contextUsed:profile?{businessName:profile.businessName,stage:profile.stage,industry:profile.industry,currentGoal:profile.currentGoal,budgetLevel:profile.budgetLevel}:undefined}
 }

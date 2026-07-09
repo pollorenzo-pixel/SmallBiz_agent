@@ -1,4 +1,5 @@
 import type { AgentOutput, BusinessProfile, FounderProfile, Workflow } from '../types'
+import { appMode } from '../config/appMode'
 import { generateMockCompletion } from './modelAdapter'
 import { calendarReviewToReport, reviewMockCalendar } from './calendarService'
 import { gmailReviewToReport, reviewMockGmailInbox } from './gmailService'
@@ -180,6 +181,23 @@ export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, p
   await generateMockCompletion({ agentId:workflow.assignedAgent, prompt:userCommand||workflow.name })
   if(workflow.id==='gmail-review')return gmailReviewToReport(reviewMockGmailInbox(profile,founder),profile,founder)
   if(workflow.id==='calendar-review')return calendarReviewToReport(reviewMockCalendar(),profile,founder)
+  if(workflow.id==='founder-connections'&&!appMode.allowsDemoData){
+    const now=new Date().toISOString()
+    const summary='Founder Community has no connected opt-in network and demo profiles are disabled in production-preview mode.'
+    return {
+      id:crypto.randomUUID(),agentId:'community',title:'Founder Connection Finder · Local preview',summary,
+      fullOutput:`FOUNDER COMMUNITY STATUS\nNo founder network is connected. Production-preview does not seed fictional founder profiles.\n\nWHAT CAN HAPPEN NOW\nSmallBiz Agent can prepare a local outreach checklist or message draft from contacts you provide yourself in a future workflow, but it will not invent people, scrape profiles, buy contact lists, or send messages.\n\nBOUNDARY\nFuture community suggestions must come from an opt-in backend integration with consent, rate limits, server-side secrets, audit logs, and approval gates.\n\nNO EXTERNAL ACTION TAKEN\nNo outreach, email, DM, scraping, contact lookup, or external action occurred.`,
+      tags:['community','connection-boundary','local-preview'],createdAt:now,usefulnessRating:null,approvalNeeded:true,
+      riskNote:'Medium risk boundary · real outreach affects another person and would require explicit approval plus a future server-side integration.',
+      futureIntegrationNote:'No email, social, CRM, contact database, or founder network is connected.',
+      source:'workflow',permissionLevel:2,estimatedCostMode:'cheap',workflowId:workflow.id,estimatedTimeSavedMinutes:0,
+      preparedAction:'Use only opt-in contacts or your own provided context for future connection drafts.',
+      approvalRequired:true,outcomeStatus:'no founder network connected',plainEnglishSummary:summary,
+      approvalSummary:'A local boundary-review approval was created. Approving it only records a local decision and never sends outreach or connects a network.',
+      keyFindings:[summary,'No fictional profiles were loaded.','No contact details were accessed.'],
+      recommendedNextSteps:['Use your own known contact context if you want a local introduction draft.','Keep any real outreach one-to-one, respectful, and approval-gated.','Add opt-in backend community data only in a future integration phase.']
+    }
+  }
   const template = templates[workflow.id]
   if (!template) throw new Error('No local mock report template is available for this workflow.')
   return {

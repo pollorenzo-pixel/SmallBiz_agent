@@ -86,6 +86,42 @@ The Calendar safety model is:
 
 Future real Google Calendar support must use a backend OAuth adapter, scoped permissions, server-side secrets, audit logs, model routing, budget checks, and approval gates before creating, updating, deleting, inviting, or sending anything.
 
+## Phase 25 — Production Cleanup & Mock Data Boundary Layer
+
+Phase 25 adds an explicit app-mode boundary so the product can run as a safer production-facing prototype without filling core surfaces with fictional records. The app is still mock-first and localStorage-based, but seeded demo/sample data now lives behind a clear mode gate.
+
+### What changed
+
+- `src/config/appMode.ts` defines `APP_MODE` as `prototype` or `production-preview`.
+- `production-preview` is the default when `VITE_APP_MODE` is not set.
+- Demo/sample seeding is allowed only in `prototype` mode.
+- Home no longer starts with fictional recent admin activity in production-preview.
+- Reports, Approvals, Recent activity, Gmail, Calendar, and Community now have empty states or honest no-connected-account reports instead of seeded fake records.
+- Gmail, Google Calendar, and Community demo records remain available for local development when `VITE_APP_MODE=prototype`.
+- Settings now labels Gmail and Google Calendar as `Mock connected / backend-ready`, future integrations as `Not connected`, and includes a real-integration safety note.
+
+### Using app modes
+
+`VITE_APP_MODE` is a public Vite flag. It is safe for non-secret mode selection only; it must never contain API keys, OAuth tokens, passwords, or production secrets.
+
+```bash
+# Safer production-facing preview: clean localStorage defaults unless the user creates data.
+VITE_APP_MODE=production-preview npm run dev
+
+# Local development/demo mode: optional seeded Gmail, Calendar, Community, and operator notice examples.
+VITE_APP_MODE=prototype npm run dev
+```
+
+### Still mock/local-only
+
+Workflow runs still create local reports, local approval previews, local project-board items, and deterministic simulated output. Approving an item only records a local decision in this browser.
+
+There are still no real Gmail API calls, Google Calendar API calls, OAuth flows, frontend secrets, payment execution, bank reconciliation, tax submission, GitHub issue creation, production data deletion, deployment, external coding-agent handoff, or irreversible external actions.
+
+### Safety reminder
+
+Future real integrations must use backend OAuth, server-side secrets, scoped permissions, permission review, audit logs, model/budget controls, and approval gates. Production API keys and OAuth secrets must never be added to frontend code, Vite public env vars, localStorage, or browser-visible bundles.
+
 ## Phase 15 — Guided Builder Workflows
 
 Phase 15 adds a beginner-friendly Builder inside each user project. It can prepare seven deterministic plans: a business website, pricing page, product offer page, launch plan, first ad campaign, app idea, or automation plan. Every run saves a project-linked report and creates practical action-board items and milestones. Website, app, ad, and automation plans also create a **simulated Level 2 approval preview** for possible future external actions; approving that preview still executes nothing.

@@ -32,7 +32,7 @@ export function App() {
  const [page,setPage]=useState<PageId>('home')
  const [workflows,setWorkflows]=useState<Workflow[]>(()=>{
   const stored=loadLocal('operator.workflows',workflowSeed,isRecordArray<Workflow>)
-  return workflowSeed.map(seed=>stored.find(item=>item.id===seed.id)?{...seed,...stored.find(item=>item.id===seed.id)}:seed)
+  return workflowSeed.map(seed=>{const saved=stored.find(item=>item.id===seed.id);return saved?{...seed,status:saved.status,lastRunAt:saved.lastRunAt}:seed})
  })
  const [reports,setReports]=useState<AgentOutput[]>(()=>loadLocal('operator.reports',[],isRecordArray<AgentOutput>))
  const [approvals,setApprovals]=useState<Approval[]>(()=>loadLocal('operator.approvals',[],isRecordArray<Approval>))

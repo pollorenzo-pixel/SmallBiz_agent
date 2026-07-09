@@ -1,4 +1,5 @@
 import type { AgentOutput, BusinessProfile, CalendarActionDraft, CalendarEvent, CalendarIntegrationStatus, CalendarPriority, CalendarReviewResult, FounderProfile, PermissionLevel } from '../types'
+import { appMode, demoDataUnavailableSummary } from '../config/appMode'
 
 export const calendarIntegrationStatus:CalendarIntegrationStatus='mock-connected'
 
@@ -22,9 +23,20 @@ function actionDraftFor(event:CalendarEvent):CalendarActionDraft{
 }
 
 export function reviewMockCalendar():CalendarReviewResult{
- const events=[...mockCalendarEvents].sort((a,b)=>rank[b.priority]-rank[a.priority])
+ const events=(appMode.allowsDemoData?[...mockCalendarEvents]:[]).sort((a,b)=>rank[b.priority]-rank[a.priority])
  const actionDrafts=events.map(actionDraftFor)
  const priorityEvents=events.filter(event=>rank[event.priority]>=3)
+ if(!events.length)return {
+  id:crypto.randomUUID(),status:calendarIntegrationStatus,events:[],priorityEvents:[],
+  summary:demoDataUnavailableSummary('Google Calendar'),
+  preparationNotes:[],
+  suggestedQuestions:[],
+  risks:['No real Google Calendar OAuth is connected.','Demo/sample calendar data is disabled in production-preview mode.','No event has been read, created, updated, deleted, cancelled, invited, or changed.','Future Calendar support requires backend OAuth, server-side secrets, permission review, audit logs, and approval gates.'],
+  nextActions:['Run a non-integration workflow for local planning, or configure backend Calendar OAuth in a future backend phase.'],
+  followUpTasks:['Keep calendar event creation, updates, invites, cancellations, and follow-ups approval-gated and server-side only.'],
+  approvalNeededActions:[],
+  actionDrafts:[],noExternalActionTaken:true,createdAt:new Date().toISOString()
+ }
  return {
   id:crypto.randomUUID(),status:calendarIntegrationStatus,events,priorityEvents,
   summary:`${events.length} mock calendar events reviewed: ${priorityEvents.length} need preparation before the next two working days.`,
@@ -63,16 +75,16 @@ export function calendarReviewToReport(review:CalendarReviewResult,profile?:Busi
   ...review.followUpTasks.map(task=>`- ${task}`)
  ].join('\n')
  const fullOutput=[
-  `CALENDAR INTEGRATION STATUS\n${review.status} · backend ready · mock calendar only`,
+  `CALENDAR INTEGRATION STATUS\n${review.status} · backend ready · ${appMode.allowsDemoData?'mock calendar only':'no connected account; demo calendar disabled'}`,
   profile?`BUSINESS CONTEXT USED\nBusiness: ${profile.businessName}\nFounder tone: ${founder?.preferredTone||profile.preferredTone}\nCurrent goal: ${profile.currentGoal}`:'',
   `CALENDAR SUMMARY\n${review.summary}`,
-  `PRIORITY MEETINGS\n${eventLines.map(line=>`• ${line}`).join('\n')}`,
-  `PREPARATION NOTES\n${review.preparationNotes.map(note=>`• ${note}`).join('\n')}`,
-  `SUGGESTED QUESTIONS\n${review.suggestedQuestions.map(question=>`• ${question}`).join('\n')}`,
+  `PRIORITY MEETINGS\n${eventLines.length?eventLines.map(line=>`• ${line}`).join('\n'):'None. No Google Calendar account or demo calendar is connected.'}`,
+  `PREPARATION NOTES\n${review.preparationNotes.length?review.preparationNotes.map(note=>`• ${note}`).join('\n'):'None. No calendar events were reviewed.'}`,
+  `SUGGESTED QUESTIONS\n${review.suggestedQuestions.length?review.suggestedQuestions.map(question=>`• ${question}`).join('\n'):'None. Connect a future backend calendar adapter before preparing real meeting questions.'}`,
   `APPROVAL-NEEDED CALENDAR ACTIONS\n${review.approvalNeededActions.map(action=>`• ${action.title}: ${action.proposedAction}`).join('\n')||'None.'}`,
   `FOLLOW-UP TASKS\n${review.followUpTasks.map((task,index)=>`${index+1}. ${task}`).join('\n')}`,
   `RISKS AND BOUNDARIES\n${review.risks.map(risk=>`• ${risk}`).join('\n')}`,
-  'NO EXTERNAL ACTION TAKEN\nSmallBiz Agent reviewed mock calendar events only. No Google Calendar API, OAuth, event creation, update, invite, cancellation, deletion, email, payment, reconciliation, tax submission, or external side effect occurred.'
+  `NO EXTERNAL ACTION TAKEN\nSmallBiz Agent ${appMode.allowsDemoData?'reviewed mock calendar events only':'did not access Google Calendar and did not load demo events'}. No Google Calendar API, OAuth, event creation, update, invite, cancellation, deletion, email, payment, reconciliation, tax submission, or external side effect occurred.`
  ].filter(Boolean).join('\n\n')
- return {id:crypto.randomUUID(),agentId:'founder',title:'Calendar Briefing Assistant · Mock report',summary:review.summary,plainEnglishSummary:'SmallBiz Agent reviewed the mock calendar, prepared meeting briefings, suggested questions, and queued approval-gated calendar follow-ups where useful.',fullOutput,tags:['calendar','schedule','meeting-briefing','time-back','approval','local-mock'],createdAt:review.createdAt,usefulnessRating:null,approvalNeeded:review.approvalNeededActions.length>0,riskNote:'Medium risk, Level 2 preview · event changes, invites, and follow-up sends are approval-gated and simulated only. Finance/admin commitments remain Level 3 blocked.',futureIntegrationNote:'Future Google Calendar OAuth must run through backend/serverless adapters, scoped permissions, audit logs, and approval gates.',source:'workflow',permissionLevel:2,estimatedCostMode:'cheap',workflowId:'calendar-review',estimatedTimeSavedMinutes:28,preparedAction:'Review meeting prep and approve only the calendar follow-up drafts you want to simulate.',approvalRequired:true,outcomeStatus:'calendar briefing prepared locally',keyFindings:[review.summary,...eventLines,...review.risks],recommendedNextSteps:['Review prep notes before priority meetings.','Approve only future calendar updates or invites you genuinely want to create later.','Keep finance/admin reminders as accountant questions, not payment or reconciliation actions.'],copyableText:copyable,approvalSummary:'Calendar action previews were added to Approvals. Approving them in this MVP only records a local decision and never changes a calendar.',contextUsed:profile?{businessName:profile.businessName,stage:profile.stage,industry:profile.industry,currentGoal:profile.currentGoal,budgetLevel:profile.budgetLevel}:undefined}
+ return {id:crypto.randomUUID(),agentId:'founder',title:`Calendar Briefing Assistant · ${appMode.allowsDemoData?'Mock report':'Local preview'}`,summary:review.summary,plainEnglishSummary:review.priorityEvents.length?'SmallBiz Agent reviewed the mock calendar, prepared meeting briefings, suggested questions, and queued approval-gated calendar follow-ups where useful.':'Google Calendar is backend-ready but no real account is connected and production-preview does not load demo event data.',fullOutput,tags:['calendar','schedule','meeting-briefing','time-back','approval','local-mock'],createdAt:review.createdAt,usefulnessRating:null,approvalNeeded:review.approvalNeededActions.length>0,riskNote:'Medium risk, Level 2 preview · event changes, invites, and follow-up sends are approval-gated and simulated only. Finance/admin commitments remain Level 3 blocked.',futureIntegrationNote:'Future Google Calendar OAuth must run through backend/serverless adapters, scoped permissions, audit logs, and approval gates.',source:'workflow',permissionLevel:2,estimatedCostMode:'cheap',workflowId:'calendar-review',estimatedTimeSavedMinutes:review.priorityEvents.length?28:0,preparedAction:review.priorityEvents.length?'Review meeting prep and approve only the calendar follow-up drafts you want to simulate.':'Connect a future backend Google Calendar adapter before reviewing real event data.',approvalRequired:review.approvalNeededActions.length>0,outcomeStatus:review.priorityEvents.length?'calendar briefing prepared locally':'no calendar data connected',keyFindings:[review.summary,...eventLines,...review.risks],recommendedNextSteps:review.priorityEvents.length?['Review prep notes before priority meetings.','Approve only future calendar updates or invites you genuinely want to create later.','Keep finance/admin reminders as accountant questions, not payment or reconciliation actions.']:['Run a non-integration workflow to create local planning work.','Add backend OAuth and permission review in a future integration phase before reading Google Calendar.','Keep event creation, updates, invites, cancellations, and sends approval-gated.'],copyableText:copyable.trim()?copyable:undefined,approvalSummary:review.approvalNeededActions.length?'Calendar action previews were added to Approvals. Approving them in this MVP only records a local decision and never changes a calendar.':undefined,contextUsed:profile?{businessName:profile.businessName,stage:profile.stage,industry:profile.industry,currentGoal:profile.currentGoal,budgetLevel:profile.budgetLevel}:undefined}
 }

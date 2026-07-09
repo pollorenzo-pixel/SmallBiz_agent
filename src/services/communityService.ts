@@ -1,4 +1,5 @@
 import type { AgentOutput, Approval, BusinessProfile, ConnectionDraft, ConnectionDraftBundle, FounderMatch, FounderProfile } from '../types'
+import { appMode } from '../config/appMode'
 import { isRecordArray, loadLocal, saveLocal } from './storage'
 
 const KEY='operator.founderMatches';const now='2026-07-06T09:00:00.000Z'
@@ -11,7 +12,7 @@ const seed:FounderMatch[]=[
  {id:'jay-student',name:'Jay Williams (fictional)',businessName:'StudySprint',industry:'Education technology',niche:'Student-built no-code study tool',stage:'Idea',location:'Student & online market',goals:['Build with AI tools','Find a first test group'],matchReason:'A good peer for sharing beginner-friendly, low-cost ways to prototype and test.',relevanceScore:79,suggestedApproach:'Invite a short exchange about the smallest useful prototype.',tags:['student-founder','no-code','ai-tools'],status:'suggested',createdAt:now}
 ]
 const clean=(item:FounderMatch):FounderMatch=>({...item,goals:Array.isArray(item.goals)?item.goals:[],tags:Array.isArray(item.tags)?item.tags:[],status:['suggested','saved','dismissed','drafted'].includes(item.status)?item.status:'suggested'})
-export const getFounderMatches=()=>{const stored=loadLocal<FounderMatch[]>(KEY,[],isRecordArray<FounderMatch>);const byId=new Map(stored.filter(item=>typeof item.id==='string').map(item=>[item.id,clean(item)]));return seed.map(item=>byId.get(item.id)||item)}
+export const getFounderMatches=()=>{const stored=loadLocal<FounderMatch[]>(KEY,[],isRecordArray<FounderMatch>);const byId=new Map(stored.filter(item=>typeof item.id==='string').map(item=>[item.id,clean(item)]));if(!appMode.allowsDemoData)return [...byId.values()].filter(item=>!seed.some(demo=>demo.id===item.id));return seed.map(item=>byId.get(item.id)||item)}
 export const saveFounderMatches=(items:FounderMatch[])=>saveLocal(KEY,items.map(clean))
 export const updateFounderMatch=(items:FounderMatch[],id:string,status:FounderMatch['status'])=>items.map(item=>item.id===id?{...item,status}:item)
 

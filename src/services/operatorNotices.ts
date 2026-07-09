@@ -1,4 +1,5 @@
 import type { AgentOutput, OperatorNotice, Workflow } from '../types'
+import { appMode } from '../config/appMode'
 import { isRecordArray, loadLocal, saveLocal } from './storage'
 
 const KEY = 'operator.notices'
@@ -11,7 +12,9 @@ export const seedOperatorNotices = (): OperatorNotice[] => [
 ]
 
 export function loadOperatorNotices(): OperatorNotice[]{
- const stored=loadLocal(KEY,seedOperatorNotices(),isRecordArray<OperatorNotice>)
+ const fallback=appMode.allowsDemoData?seedOperatorNotices():[]
+ const stored=loadLocal(KEY,fallback,isRecordArray<OperatorNotice>)
+ if(!appMode.allowsDemoData)return stored.filter(notice=>!seedOperatorNotices().some(seed=>seed.id===notice.id))
  return stored.length?stored:seedOperatorNotices()
 }
 export function saveOperatorNotices(notices:OperatorNotice[]):void{ saveLocal(KEY,notices) }
@@ -31,5 +34,6 @@ export function calculateTimeSaved(notices:OperatorNotice[],reports:AgentOutput[
  const noticeMinutes=notices.filter(n=>n.status==='completed'||n.status==='drafted'||n.status==='approved').reduce((sum,n)=>sum+n.estimatedTimeSavedMinutes,0)
  const reportMinutes=reports.reduce((sum,r)=>sum+(r.estimatedTimeSavedMinutes||0),0)
  const today=noticeMinutes+reportMinutes
- return {todayMinutes:today,weekMinutes:today+95,emailsReviewed:12,draftsPrepared:notices.filter(n=>n.status==='drafted').length+3,meetingsOrganised:notices.filter(n=>n.category==='Planning').length+2,decisionsEscalated:notices.filter(n=>n.permissionLevel>=2&&n.status!=='dismissed').length}
+ const demoOffset=appMode.allowsDemoData?{week:95,emails:12,drafts:3,meetings:2}:{week:0,emails:0,drafts:0,meetings:0}
+ return {todayMinutes:today,weekMinutes:today+demoOffset.week,emailsReviewed:reports.filter(r=>r.workflowId==='gmail-review').length?reports.filter(r=>r.workflowId==='gmail-review').length:demoOffset.emails,draftsPrepared:notices.filter(n=>n.status==='drafted').length+demoOffset.drafts,meetingsOrganised:notices.filter(n=>n.category==='Planning').length+demoOffset.meetings,decisionsEscalated:notices.filter(n=>n.permissionLevel>=2&&n.status!=='dismissed').length}
 }
