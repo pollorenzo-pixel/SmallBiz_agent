@@ -173,3 +173,20 @@ export interface Integration {
   id: string; name: string; status: 'placeholder'; description: string; authType: string
   permissions: PermissionLevel[]; riskLevel: RiskLevel
 }
+
+export type GmailMessageCategory='finance'|'meeting'|'customer-support'|'marketing-opportunity'|'newsletter'
+export type GmailPriority='urgent'|'high'|'medium'|'low'
+export type GmailIntegrationStatus='mock-connected'|'backend-ready'|'needs-oauth'|'disabled'
+export interface GmailMessage {
+  id:string; threadId:string; from:string; to:string; subject:string; snippet:string; body:string
+  receivedAt:string; unread:boolean; category:GmailMessageCategory; priority:GmailPriority; riskLevel:RiskLevel
+}
+export interface GmailThread { id:string; subject:string; messages:GmailMessage[]; category:GmailMessageCategory; priority:GmailPriority; assignedAgentId:string }
+export interface GmailDraftReply { id:string; messageId:string; threadId:string; to:string; subject:string; body:string; tone:string; permissionLevel:PermissionLevel; requiresApproval:boolean; noExternalActionTaken:boolean }
+export interface GmailActionPlan { id:string; messageId:string; title:string; assignedAgentId:string; permissionLevel:PermissionLevel; riskLevel:RiskLevel; suggestedAction:string; followUpTask:string; approvalRequired:boolean; blockedReason?:string }
+export interface GmailSummary { id:string; totalMessages:number; unreadCount:number; priorityCount:number; categories:Record<GmailMessageCategory,number>; summary:string; createdAt:string }
+export interface GmailReviewResult {
+  id:string; status:GmailIntegrationStatus; summary:GmailSummary; priorityEmails:GmailMessage[]; risks:string[]
+  suggestedActions:GmailActionPlan[]; draftReplies:GmailDraftReply[]; approvalNeededItems:GmailActionPlan[]
+  followUpTasks:string[]; assignedAgentIds:string[]; noExternalActionTaken:boolean; createdAt:string
+}

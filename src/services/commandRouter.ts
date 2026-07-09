@@ -4,6 +4,7 @@ import { isRecordArray, loadLocal, saveLocal } from './storage'
 const HISTORY_KEY='smallbiz_command_history'
 type RouteRule={terms:string[];agentId:string;workflowId:string;need:string;reason:string}
 const rules:RouteRule[]=[
+ {terms:['gmail','inbox','email review','review email','review my email'],agentId:'founder',workflowId:'gmail-review',need:'review Gmail inbox and prepare safe replies',reason:'Gmail review can prioritise messages, draft replies, and queue send-email approval previews without sending anything.'},
  {terms:['plan my week','weekly','next week'],agentId:'founder',workflowId:'weekly',need:'plan and prioritise the week',reason:'You want a clear plan for the week ahead.'},
  {terms:['plan','priorit','overwhelm','where do i start','don’t know where','dont know where','focus'],agentId:'founder',workflowId:'daily',need:'choose the most useful next priorities',reason:'Founder Ops is best at turning a busy situation into clear next steps.'},
  {terms:['feedback','roadmap','product issue','users','vexis'],agentId:'product',workflowId:'vexis',need:'turn customer feedback into product tasks',reason:'This sounds like product feedback that needs to become practical roadmap work.'},
@@ -14,7 +15,7 @@ const rules:RouteRule[]=[
  {terms:['reply','customer','tester','lead','community','comment'],agentId:'customer',workflowId:'marketing',need:'prepare a thoughtful reply',reason:'Customer/Community is the best helper for the response; the draft workflow is the closest safe next step.'}
 ]
 const preview:Record<string,string>={daily:'We’ll create a short list of priorities, decisions, and next actions.',weekly:'We’ll review the week, identify blockers, and prepare a practical plan.',vexis:'We’ll summarise the feedback, find the user need, and draft product tasks.',github:'We’ll prepare a coding brief, implementation steps, tests, and safety notes.',marketing:'We’ll create a hook, full draft, short version, call to action, and tone notes.',invoice:'We’ll review mock invoice notes, flag uncertainty, and prepare anything sensitive for your review.',research:'We’ll frame the question, compare mock evidence, explain caveats, and suggest next steps.'}
-const restrictedPattern=/\b(payment|pay supplier|tax submission|submit tax|tax documents|bank reconciliation|reconcile bank|delete production|production data|delete customer|drop table|sign contract|legal commitment|financial commitment|deploy to production|auto-?deploy|auto-?merge)\b/i
+const restrictedPattern=/\b(payment|pay supplier|pay invoice|pay the invoice|tax submission|submit tax|tax documents|bank reconciliation|reconcile bank|reconcile the bank|reconcile.*bank transaction|delete production|production data|delete customer|drop table|sign contract|legal commitment|financial commitment|deploy to production|auto-?deploy|auto-?merge)\b/i
 
 export function routeCommand(command:string,profile:FounderProfile|undefined,agents:Agent[],workflows:Workflow[]):CommandRouteSuggestion{
  const text=command.trim().toLowerCase();const matches=rules.map((rule,index)=>({rule,index,score:rule.terms.reduce((sum,term)=>sum+(text.includes(term)?(term.includes(' ')?3:2):0),0)})).filter(item=>item.score>0).sort((a,b)=>b.score-a.score||a.index-b.index)

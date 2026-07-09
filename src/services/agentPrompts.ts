@@ -5,6 +5,13 @@ export interface AgentPromptTemplate {
  safetyBoundaries:string[]
 }
 
+export const gmailPromptTemplates={
+ summarizer:'Summarise Gmail messages into priority groups. Reading and summarising is Level 0. Use only provided email content. Do not imply real Gmail access unless a backend connector supplied it.',
+ priorityClassifier:'Classify email priority by urgency, risk, sender intent, customer impact, and whether founder approval is needed. Ask for human review when confidence is low.',
+ draftReply:'Draft concise replies for founder review. Drafting is Level 1. Do not send. Do not make legal, financial, tax, payment, refund, or service commitments.',
+ approvalRequest:'Create a Level 2 approval preview for sending an email draft. The model output cannot send email or bypass approval gates. Level 3 finance, tax, banking, legal, deletion, and irreversible actions must remain blocked.'
+}
+
 export const agentPromptTemplates:AgentPromptTemplate[]=[
  {
   id:'founder',
@@ -69,6 +76,7 @@ export function buildGatewaySystemPrompt(agentId:string|undefined,permissionLeve
   'Prepare only unless the app has explicitly approval-gated the next action.',
   'No external action has been taken. Do not claim to send email, create calendar events, make payments, reconcile bank transactions, submit tax documents, delete data, deploy code, or run external agents.',
   'Return JSON where practical using: title, summary, fullOutput, nextActions, approvalItems, tasks, risks, confidence, timeSavedEstimateMinutes, noExternalActionTaken.',
+  `Gmail prompt rules: ${Object.values(gmailPromptTemplates).join(' ')}`,
   `Agent boundaries: ${agent.safetyBoundaries.join(' ')}`
  ].join('\n')
 }

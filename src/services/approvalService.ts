@@ -7,6 +7,13 @@ export function shouldCreateApproval(workflow: Workflow): boolean {
 
 export function createApproval(workflow: Workflow): Approval | null {
   if (!shouldCreateApproval(workflow)) return null
+  if(workflow.id==='gmail-review')return {
+    id:crypto.randomUUID(), title:'Finance/Admin review · Gmail send draft', agentId:'finance',
+    proposedAction:'Review the prepared Gmail draft replies, including the invoice reminder response. Approving only records a local send-email approval preview; it cannot send email, pay, reconcile, or confirm financial status.',
+    reason:'Sending an email is Level 2 and requires explicit founder approval. Payment, bank reconciliation, tax submission, and final accounting decisions remain Level 3 blocked. No real Gmail OAuth, Gmail API, or delivery service is connected.',
+    confidence:86, riskLevel:'medium', status:'pending', createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),permissionLevel:2,
+    payloadPreview:JSON.stringify({mode:'gmail-send-email-preview',workflowId:workflow.id,externalExecution:false,gmailOAuthConnected:false,sendEmail:false,level3Blocked:['payments','tax submissions','bank reconciliation','legal commitments']},null,2)
+  }
   return {
     id:crypto.randomUUID(), title:`Local preview: ${workflow.name}`, agentId:workflow.assignedAgent,
     proposedAction:`Review the mock ${workflow.name.toLowerCase()} draft. Approving only records a local decision; it cannot execute an external action.`,
