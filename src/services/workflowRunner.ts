@@ -52,6 +52,47 @@ const templates: Record<string, MockReportTemplate> = {
     riskNote:'Low risk · briefing is read-only and based entirely on illustrative local data.',
     futureIntegrationNote:'A future Gmail, calendar, Supabase, and task-system integration could gather live signals after explicit permission.', tags:['daily','planning','founder-ops']
   },
+
+  'email-reply-draft': {
+    summary:'The AI reviewed recent customer-style messages and prepared three safe draft replies for approval.',
+    findings:['What the AI noticed: three messages likely need a reply today.','Messages reviewed: delivery question, pricing clarification, and a mildly frustrated support note.','Approval-needed items: all outbound replies remain queued for review before sending.'],
+    actions:['Review the three prepared replies.','Edit tone or details where needed.','Approve only the replies you are comfortable sending later.'],
+    details:['Title: 3 customer replies prepared','Draft replies: polite delivery update; clear pricing explanation; empathetic support acknowledgement.','Tone notes: warm, concise, no promises beyond known facts.','Approval-needed items: every customer reply.','Estimated time saved: 24 minutes.'],
+    riskNote:'Medium risk, Level 2 preview · replies are prepared only; nothing was sent.',
+    futureIntegrationNote:'A future email integration could send only after explicit approval through server-side controls.', tags:['communication','email-drafts','time-back','approval']
+  },
+  'meeting-scheduling': {
+    summary:'Two meeting requests were noticed and converted into draft scheduling options.',
+    findings:['What the AI noticed: two recent messages ask for time to talk.','Draft prepared: suggested time windows and a short confirmation note.','Approval-needed items: no calendar event or invite can be created without approval.'],
+    actions:['Check the suggested slots.','Edit the meeting note.','Approve only if you want to create or send it later.'],
+    details:['Messages reviewed: partner catch-up request; customer onboarding request.','Draft replies: offer Tuesday morning or Thursday afternoon; ask for timezone if unclear.','Tone notes: helpful and brief.','Estimated time saved: 20 minutes.'],
+    riskNote:'Medium risk, Level 2 preview · scheduling text is local only; no calendar was changed.',
+    futureIntegrationNote:'Future calendar/email execution would require approval and a backend adapter.', tags:['planning','meeting-draft','time-back','approval']
+  },
+  'task-organiser': {
+    summary:'Scattered admin notes were organised into a short, priority-ranked checklist.',
+    findings:['What the AI noticed: admin, customer, and finance tasks are mixed together.','Draft prepared: a 6-item checklist with urgent items first.','Approval needed: no, because this only organises local tasks.'],
+    actions:['Start with customer replies.','Then check invoice follow-up.','Move non-urgent research to tomorrow.'],
+    details:['Checklist: reply drafts; unpaid invoice follow-up; two scheduling replies; update project board; check Friday priorities; park research notes.','Estimated time saved: 18 minutes.'],
+    riskNote:'Low risk, Level 1 · local organisation and recommendations only.',
+    futureIntegrationNote:'Future task-system updates would require approval before changing external records.', tags:['admin','task-organiser','time-back']
+  },
+  'meeting-summary': {
+    summary:'Mock meeting notes were turned into decisions, follow-ups, and a reusable summary.',
+    findings:['What the AI noticed: three decisions and four follow-up actions.','Draft prepared: meeting recap and owner checklist.','Approval needed: no for the summary; sending follow-ups would need approval.'],
+    actions:['Copy the summary into your notes.','Review owners for each follow-up.','Queue any outbound follow-up as an approval item later.'],
+    details:['Messages reviewed: meeting notes only.','Draft summary: goals agreed, next experiment chosen, open finance question logged.','Tone notes: neutral and factual.','Estimated time saved: 22 minutes.'],
+    riskNote:'Low risk, Level 1 · summary and follow-up drafts only.',
+    futureIntegrationNote:'Future email/calendar/task follow-ups would remain approval-gated.', tags:['communication','meeting-summary','time-back']
+  },
+  'invoice-followup': {
+    summary:'One unpaid invoice was flagged and a polite follow-up draft was prepared for review.',
+    findings:['What the AI noticed: one invoice is overdue in the mock admin queue.','Draft prepared: short, polite payment reminder.','Approval-needed items: sending the reminder or updating accounting records.'],
+    actions:['Verify the invoice is genuinely overdue.','Review the follow-up wording.','Ask an accountant if the payment status is unclear.'],
+    details:['Messages reviewed: invoice status note and customer account note.','Draft reply: polite reminder with invoice number placeholder and request to confirm payment date.','Tone notes: calm, professional, non-accusatory.','Estimated time saved: 18 minutes.'],
+    riskNote:'High risk, Level 2 preview · finance communication requires review; no payment, reconciliation, or accounting update occurred.',
+    futureIntegrationNote:'Future Xero/email actions would require explicit approval and server-side controls.', tags:['finance','invoice-followup','time-back','approval']
+  },
   weekly: {
     summary:'The week produced a clearer product thesis; next week should favour customer evidence over broader implementation.',
     findings:['Win: The product hypothesis is narrower and easier to test.','Blocker: Two roadmap decisions lack direct customer evidence.','Capacity signal: One prototype test and five conversations fit the available week.'],
@@ -141,7 +182,7 @@ export async function runWorkflow(workflow: Workflow, approvalNeeded: boolean, p
     id:crypto.randomUUID(), agentId:workflow.assignedAgent, title:`${workflow.name} · Mock report`, summary:userCommand?`Prepared for “${userCommand}”: ${template.summary}`:template.summary,
     fullOutput:`${userCommand?`YOUR REQUEST\n“${userCommand}”\n\n`:''}${formatReport(template, approvalNeeded,profile,workflow.id,founder,workflow.assignedAgent)}`, tags:[...template.tags, workflow.riskLevel, 'local-mock'],
     createdAt:new Date().toISOString(), usefulnessRating:null, approvalNeeded, riskNote:template.riskNote,
-    futureIntegrationNote:template.futureIntegrationNote, source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
+    futureIntegrationNote:template.futureIntegrationNote, estimatedTimeSavedMinutes: ({daily:15,weekly:25,'email-reply-draft':24,'meeting-scheduling':20,'task-organiser':18,'meeting-summary':22,'invoice-followup':18,invoice:18,automation:30,marketing:20,research:35,github:30,'business-plan':45,funding:30} as Record<string,number>)[workflow.id]||12, preparedAction:template.actions[0], approvalRequired:approvalNeeded, outcomeStatus:approvalNeeded?'drafted for approval':'completed locally', source:workflow.id==='business-plan'||workflow.id==='funding'?'business-builder':workflow.id==='automation'?'automation-blueprint':workflow.id==='self-audit'?'self-audit':'workflow',
     permissionLevel:approvalNeeded?2:1, estimatedCostMode:'cheap',
     workflowId:workflow.id,plainEnglishSummary:template.summary,keyFindings:template.findings,recommendedNextSteps:template.actions,copyableText:reusableText(workflow.id,template),
     approvalSummary:approvalNeeded?`This workflow prepared a ${workflow.name.toLowerCase()} draft. Anything that could affect an external tool is waiting in Approvals instead of being sent automatically.`:undefined,

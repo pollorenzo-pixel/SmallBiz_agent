@@ -401,3 +401,17 @@ Validation:
 npm run typecheck
 npm run build
 ```
+
+## Phase 20 — Time-Back Operator Layer
+
+SmallBiz Agent is now framed as an AI operations partner that gives small business owners their time back. The Home screen includes a **Time given back** card, deterministic mock metrics, and **Today’s Admin Review** operator notices for routine admin such as reply drafts, invoice follow-up, scheduling, and daily priorities.
+
+Phase 20 adds a local/mock `OperatorNotice` model with statuses for new, drafted, approved, dismissed, and completed notices. Time saved is calculated from drafted/completed operator notices and workflow outputs, then displayed as believable local metrics. All persistence remains defensive localStorage; older reports, approvals, projects, workflows, and builder outputs continue to render with fallbacks.
+
+Low-risk automation workflows are now more prominent: Daily Business Briefing, Email Reply Draft Assistant, Meeting Scheduling Assistant, Task Organiser, Meeting Summary Assistant, and Invoice Follow-up Assistant. These workflows show what the AI noticed, the draft prepared, suggested next actions, estimated time saved, and whether approval is needed.
+
+Permission copy now reinforces the operating model: Level 0 reads/summarises/classifies/organises, Level 1 prepares drafts and recommendations, Level 2 requires approval before sending/creating/updating/triggering external actions, and Level 3 remains blocked in the MVP. SmallBiz Agent prepares the work; the owner stays in control.
+
+An internal Coding Task Policy was added for the Engineering/Coding Agent: one bounded coding deliverable per run, large requests become a foundation build plus roadmap, no unlimited loops, no production deployment without approval, no first-build API/payment integration unless explicitly approved, and bigger builds split into milestones with complexity and guardrails.
+
+Phase 20 remains local/mock only. No real email, calendar, GitHub, Xero, payment, backend, secret, or external API execution was added.

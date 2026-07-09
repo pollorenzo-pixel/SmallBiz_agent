@@ -21,9 +21,14 @@ export interface Agent {
   id: string; name: string; role: string; description: string
   capabilities: string[]; boundaries: string[]; examplePrompts: string[]; defaultOutputFormat: string
 }
+export type WorkflowCategory = 'Admin'|'Communication'|'Planning'|'Finance'|'Marketing'|'Product'|'Coding'|'Research'
+export type OperatorNoticeStatus = 'new'|'drafted'|'approved'|'dismissed'|'completed'
 export interface Workflow {
   id: string; name: string; description: string; assignedAgent: string; steps: string[]
-  status: 'ready' | 'running' | 'complete'; lastRunAt?: string; riskLevel: RiskLevel; requiresApproval: boolean
+  status: 'ready' | 'running' | 'complete'; lastRunAt?: string; riskLevel: RiskLevel; requiresApproval: boolean; category?:WorkflowCategory
+}
+export interface OperatorNotice {
+  id:string; title:string; category:WorkflowCategory; summary:string; suggestedAction:string; riskLevel:RiskLevel; permissionLevel:PermissionLevel; status:OperatorNoticeStatus; estimatedTimeSavedMinutes:number; relatedAgentId:string; createdAt:string
 }
 export interface Approval {
   id: string; title: string; agentId: string; proposedAction: string; reason: string
@@ -44,6 +49,7 @@ export interface AgentOutput {
   projectId?:string; sourceProjectTitle?:string; projectActionType?:string
   builderPlan?:BuilderPlanData
   execution?: { executionResultId:string; providerId:string; providerName:string; simulatedTools:string[]; permissionDecision:string; approvalStatus:string }
+  estimatedTimeSavedMinutes?:number; preparedAction?:string; approvalRequired?:boolean; outcomeStatus?:string
 }
 export interface BuilderPlanData { builderWorkflowId:string; builderType:string; basedOn:Array<{label:string;value:string}>; sections:Array<{title:string;content:string}>; suggestedMilestones:string[]; approvalFutureActions:string[]; safetyNote:string }
 export interface AIProvider { id:string; name:string; type:string; status:'active'|'disabled'|'placeholder'; description:string; capabilities:string[]; authType:string; supportsStreaming:boolean; supportsTools:boolean; riskLevel:RiskLevel; isMock:boolean; enabled:boolean }
