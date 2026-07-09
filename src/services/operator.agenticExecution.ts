@@ -150,7 +150,7 @@ function createReport(run: WorkflowRun, results: AgentExecutionStep[], approvals
   const blocked = results.filter(step => step.status === 'blocked')
   const lead = agentName(run.leadAgentId)
   const support = run.supportingAgentIds.map(agentName)
-  const fullOutput = `Original goal\n${run.goalDescription}\n\nGenerated workflow\n${run.workflowName}\n\nLead agent\n${lead}\n\nSupporting agents\n${support.join(', ') || 'None'}\n\nExecution timeline\n${results.map((step, index) => `${index + 1}. ${agentName(step.agentId)} — ${step.title} — ${step.status} — Level ${step.permissionLevel}\n${step.result?.output || step.blockedReason || step.reason}`).join('\n\n')}\n\nApproval previews created\n${approvals.length ? approvals.map(approval => `- ${approval.title}: ${approval.reason}`).join('\n') : 'None.'}\n\nBlocked actions\n${blocked.length ? blocked.map(step => `- ${step.title}: ${step.blockedReason || step.reason}`).join('\n') : 'None.'}\n\nWhat your AI team learned\n${completed.map(step => `- ${agentName(step.agentId)} learned how this goal relates to ${profileContext(profile)}: ${step.title}.`).join('\n') || '- No completed steps were available to learn from.'}\n\nSafety note\nThis was a local mock execution foundation. Nothing was sent, published, paid, deployed, changed in GitHub, connected to Xero, or executed outside localStorage.`
+  const fullOutput = `Original goal\n${run.goalDescription}\n\nGenerated workflow\n${run.workflowName}\n\nLead agent\n${lead}\n\nSupporting agents\n${support.join(', ') || 'None'}\n\nExecution timeline\n${results.map((step, index) => `${index + 1}. ${agentName(step.agentId)} — ${step.title} — ${step.status} — Level ${step.permissionLevel}\n${step.result?.output || step.blockedReason || step.reason}`).join('\n\n')}\n\nApproval previews created\n${approvals.length ? approvals.map(approval => `- ${approval.title}: ${approval.reason}`).join('\n') : 'None.'}\n\nBlocked actions\n${blocked.length ? blocked.map(step => `- ${step.title}: ${step.blockedReason || step.reason}`).join('\n') : 'None.'}\n\nLocal memory notes\n${completed.map(step => `- ${agentName(step.agentId)} learned how this goal relates to ${profileContext(profile)}: ${step.title}.`).join('\n') || '- No completed steps were available to learn from.'}\n\nSafety note\nThis was a local mock execution foundation. Nothing was sent, published, paid, deployed, changed in GitHub, connected to Xero, or executed outside localStorage.`
 
   return {
     id: reportId,
@@ -192,7 +192,7 @@ function createMemoryEvents(run: WorkflowRun, steps: AgentExecutionStep[], repor
       runId: run.id,
       type: 'goal',
       title: `Goal executed locally: ${run.goalTitle}`,
-      summary: `The AI team created and ran a local mock workflow for “${run.goalDescription}”.`,
+      summary: `SmallBiz Agent created and ran a local preview workflow for “${run.goalDescription}”.`,
       agentId: run.leadAgentId,
       relatedGoalId: run.goalId,
       relatedReportId: reportId,
@@ -250,7 +250,7 @@ function createMemoryEvents(run: WorkflowRun, steps: AgentExecutionStep[], repor
       id: crypto.randomUUID(),
       runId: run.id,
       type: 'learning',
-      title: `AI team learned: ${agentName(learning.agentId)}`,
+      title: `Local memory note: ${agentName(learning.agentId)}`,
       summary: learning.learning,
       agentId: learning.agentId,
       relatedGoalId: run.goalId,

@@ -80,7 +80,7 @@ export function AgenticExecutionPanel({ bundle, openReports, openApprovals }: { 
         <button onClick={openReports}>Open report</button>
       </section>
       <section>
-        <h4>What your AI team learned</h4>
+        <h4>Local memory notes</h4>
         <ul>{learnings.slice(0, 4).map(learning => <li key={learning.id}>{learning.learning}</li>)}</ul>
       </section>
     </div>
