@@ -415,3 +415,36 @@ Permission copy now reinforces the operating model: Level 0 reads/summarises/cla
 An internal Coding Task Policy was added for the Engineering/Coding Agent: one bounded coding deliverable per run, large requests become a foundation build plus roadmap, no unlimited loops, no production deployment without approval, no first-build API/payment integration unless explicitly approved, and bigger builds split into milestones with complexity and guardrails.
 
 Phase 20 remains local/mock only. No real email, calendar, GitHub, Xero, payment, backend, secret, or external API execution was added.
+
+## Phase 21 — AI Gateway + Safe Operator Architecture Foundation
+
+Phase 21 adds the internal foundation for moving SmallBiz Agent toward a real AI operator while keeping the product mock-first and localStorage-first.
+
+### Safe operator pipeline
+
+The locked architecture is now represented in local code:
+
+`SmallBiz Agent → AI Gateway → Model Router → Budget Guard / AI Cost Guard → Workflow Planner → Approval Gates → Tool Execution`
+
+### What changed
+
+- **Central AI Gateway:** `src/services/aiGateway.ts` is the single future entry point for AI work. It supports a mock provider by default and an OpenAI-compatible provider shape for future backend use only.
+- **Provider abstraction:** `AIProviderConfig`, `AIProvider`, `AIGatewayRequest`, and `AIGatewayResult` describe provider modes without exposing secrets or making network calls.
+- **Model Router:** `src/services/modelRouter.ts` classifies tasks into `cheap-admin`, `standard-draft`, `reasoning-plan`, `coding-bounded`, and `restricted-blocked` routes.
+- **Budget Guard readiness:** `src/services/budgetGuard.ts` simulates token usage, cost bands, warnings, and cheaper-route suggestions. This prepares for CFO-style AI cost controls before paid API usage.
+- **Workflow Planner:** `src/services/workflowPlanner.ts` turns workflow requests into structured operator plans with selected agent, route, permission level, budget result, steps, expected output, and execution mode.
+- **Operator visibility:** Workflow results now show the generated safe operator plan, including model route, budget guard status, permission level, approval requirement, planned steps, and execution mode.
+- **Settings placeholders:** Settings now show AI provider mode, OpenAI-compatible base URL placeholder, API key placeholder, model routing placeholder, and budget guard placeholder as inactive/mock-first.
+
+### Safety boundaries preserved
+
+- All outputs remain deterministic mock/local outputs.
+- Reports and approvals continue to save in localStorage.
+- No real APIs, backend calls, Gmail, Calendar, GitHub, Xero, payments, webhooks, Supabase, or external execution are enabled.
+- Real API keys must never be stored in frontend code, localStorage, or client bundles. Future real keys must use backend environment variables and server-side controls.
+- Level 0–3 permissions remain intact:
+  - Level 0: summaries, analysis, recommendations.
+  - Level 1: drafts, previews, prepared plans.
+  - Level 2: approval required before future execution.
+  - Level 3: blocked in the MVP.
+- Coding tasks route to `coding-bounded`, which is limited to one bounded deliverable, a starter foundation, a roadmap, and follow-up task suggestions. No Codex/OpenHands/GitHub execution occurs.
