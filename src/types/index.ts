@@ -11,8 +11,13 @@ export type ExecutionMode = 'prepare-only'|'approval-required'|'blocked'
 export interface AIProviderConfig { mode:AIProviderMode; providerName:string; apiBaseUrlPlaceholder?:string; apiKeyPlaceholder?:string; isActive:boolean; notes:string }
 export interface AIModelRoute { id:AIModelRouteId; displayName:string; intendedModelTier:string; reason:string; estimatedCostBand:CostBand; defaultPermissionLevel:PermissionLevel }
 export interface AIGatewayRequest { id:string; taskType:string; prompt:string; title?:string; agentId?:string; workflowId?:string; requestedPermissionLevel?:PermissionLevel; requiresApproval?:boolean; providerConfig?:AIProviderConfig; context?:Record<string,unknown> }
+export interface AIResponseContract {
+  title:string; summary:string; fullOutput:string; nextActions:string[]; approvalItems:string[]
+  tasks:string[]; risks:string[]; confidence:number; timeSavedEstimateMinutes:number; noExternalActionTaken:boolean
+}
+export interface AIGatewayStructuredOutput extends AIResponseContract { [key:string]:unknown }
 export interface BudgetGuardResult { estimatedTokenUsage:number; estimatedCostBand:CostBand; budgetStatus:BudgetStatus; reason:string; recommendedCheaperRoute?:AIModelRouteId }
-export interface AIGatewayResult { id:string; requestId:string; providerMode:AIProviderMode; providerName:string; output:string; structuredOutput:Record<string,unknown>; modelRoute:AIModelRoute; budgetGuard:BudgetGuardResult; permission:{level:PermissionLevel;label:string;reason:string}; approval:{requiresApproval:boolean;status:'not-required'|'required'|'blocked';reason:string}; createdAt:string }
+export interface AIGatewayResult { id:string; requestId:string; providerMode:AIProviderMode; providerName:string; output:string; structuredOutput:AIGatewayStructuredOutput; modelRoute:AIModelRoute; budgetGuard:BudgetGuardResult; permission:{level:PermissionLevel;label:string;reason:string}; approval:{requiresApproval:boolean;status:'not-required'|'required'|'blocked';reason:string}; createdAt:string; warnings?:string[]; backend?:{attempted:boolean;used:boolean;fallback:boolean;reason?:string} }
 export interface OperatorPlanStep { id:string; title:string; status:StepStatus }
 export interface OperatorPlan { id:string; title:string; detectedIntent:string; assignedAgentId:string; steps:OperatorPlanStep[]; permissionLevel:PermissionLevel; requiresApproval:boolean; modelRoute:AIModelRoute; budgetGuard:BudgetGuardResult; expectedOutput:string; executionMode:ExecutionMode; createdAt:string }
 
@@ -81,12 +86,12 @@ export interface WorkflowResult {
   reportSummary: string; approvalId?: string; riskLevel: RiskLevel; createdAt: string
   providerName?:string; simulatedTools?:string[]; permissionDecision?:string; executionResultId?:string
   plainEnglishSummary?:string; keyFindings?:string[]; recommendedNextSteps?:string[]; copyableText?:string; approvalSummary?:string
-  operatorPlan?:OperatorPlan
+  operatorPlan?:OperatorPlan; aiGateway?:AIGatewayResult
 }
 export interface CommandRouteSuggestion {
   id:string; originalCommand:string; recommendedAgentId:string; recommendedWorkflowId:string
   confidence:'low'|'medium'|'high'; reason:string; interpretedNeed:string; safetyNote:string
-  suggestedNextStep:string; alternativeWorkflowIds:string[]
+  suggestedNextStep:string; alternativeWorkflowIds:string[]; blocked?:boolean
 }
 export interface CommandHistoryItem {
   id:string; command:string; recommendedAgentId:string; recommendedWorkflowId:string; createdAt:string

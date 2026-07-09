@@ -2,7 +2,59 @@
 
 Official project name: `smallbiz_agent`
 
-SmallBiz Agent is a local-first AI business-building and automation command center for solo founders and small businesses. Its long-term promise is to help a person start, plan, fund, launch, run, and automate a business with a small AI operating team. The current MVP uses deterministic mock templates only.
+SmallBiz Agent is a local-first AI business-building and automation command center for solo founders and small businesses. Its long-term promise is to help a person start, plan, fund, launch, run, and automate a business with a small AI operating team. The current app remains mock-first, with a Phase 22 backend/serverless AI gateway foundation for future real model calls.
+
+## Phase 22 — Real AI Gateway + Backend Safety Layer
+
+Phase 22 adds a backend-ready AI foundation without adding Gmail, Calendar, payments, webhooks, deployments, or other external execution. The locked pipeline remains:
+
+`SmallBiz Agent -> AI Gateway -> Model Router -> Budget Guard / AI Cost Guard readiness -> Workflow Planner -> Approval Gates -> Tool Execution`
+
+### What changed
+
+- `api/ai/gateway.ts` provides a Vercel-style backend/serverless AI Gateway endpoint.
+- `src/services/aiGatewayClient.ts` calls only the local backend endpoint from the frontend and sends no secrets.
+- `src/services/agentPrompts.ts` centralises practical, safety-aware prompts for Founder Ops, Product, Engineering, Marketing, Finance/Admin, Research, and Customer/Community agents.
+- The gateway response now follows a shared AI response contract: title, summary, full output, next actions, approval items, tasks, risks, confidence, time saved, and `noExternalActionTaken`.
+- Missing backend env vars, mock mode, backend errors, timeouts, invalid response shapes, and provider failures all fall back to the deterministic local mock gateway.
+- Level 3 tasks and destructive/external execution requests remain blocked before any provider call.
+
+### Backend environment setup
+
+Copy `.env.example` and configure values only in your backend or serverless environment:
+
+```bash
+AI_PROVIDER_MODE=mock
+# OPENAI_API_KEY=
+# OPENAI_BASE_URL=https://api.openai.com/v1
+# OPENAI_DEFAULT_MODEL=gpt-4.1-mini
+# OPENAI_REASONING_MODEL=gpt-4.1
+```
+
+Use `AI_PROVIDER_MODE=mock` for local development and demos. `AI_PROVIDER_MODE=openai-compatible` enables backend-only chat-completions calls only when `OPENAI_API_KEY` exists in the server environment.
+
+Never create `VITE_OPENAI_API_KEY`, never put production API keys in frontend code, and never store provider keys in localStorage. Browser code may call `/api/ai/gateway`; it must not receive or handle secrets.
+
+### Safety guarantees
+
+- No Gmail or Google Calendar integration is implemented yet.
+- No email is sent, no calendar event is created, no payment is made, no bank transaction is reconciled, no tax document is submitted, no production data is deleted, no code is deployed, and no external coding agent is run.
+- The backend limits body size, prompt length, output tokens, retry count, and provider timeout.
+- Model output is text preparation only and cannot bypass app approval gates.
+- Finance/Admin prompts forbid final accounting, legal, or tax advice and prepare summaries or accountant questions only.
+- Engineering prompts allow one bounded coding deliverable per run and no external Codex/OpenHands/GitHub execution.
+- Level 3 remains blocked in the MVP.
+
+### MVP direction
+
+Website builder/deployment is no longer core MVP scope. The next planned phases are:
+
+- Phase 23: Gmail Operator MVP
+- Phase 24: Calendar Scheduling MVP
+- Phase 25: Business Onboarding + Business Plan
+- Phase 26: Financial Forecast Generator
+- Phase 27: Daily Briefing + Marketing Operator
+- Phase 28: Consumer MVP Polish + QA + Deploy
 
 ## Phase 15 — Guided Builder Workflows
 

@@ -32,13 +32,13 @@ export function selectGoalAgents(goalAnalysis:GoalAnalysis, availableAgents:Agen
 }
 
 function baseSteps(goal:Goal, selected:{leadAgentId:string;supportingAgentIds:string[]}):GoalExecutionStep[]{
- const now=crypto.randomUUID; const supports=selected.supportingAgentIds
+ const newId=()=>crypto.randomUUID(); const supports=selected.supportingAgentIds
  return [
-  {id:now(),title:'Clarify goal and success criteria',description:`Turn “${goal.title}” into a measurable outcome and assumptions list.`,agentId:selected.leadAgentId,status:'not-started',permissionLevel:0,riskLevel:'low',reason:'Read-only planning and summarisation.',confidence:91},
-  {id:now(),title:'Gather supporting perspectives',description:'Ask supporting agents for local recommendations, risks, and missing context.',agentId:supports[0]||selected.leadAgentId,status:'not-started',permissionLevel:0,riskLevel:'low',reason:'Local analysis only.',confidence:86},
-  {id:now(),title:'Draft coordinated execution plan',description:'Create a sequenced plan with owners, checks, and next actions.',agentId:selected.leadAgentId,status:'not-started',permissionLevel:1,riskLevel:'low',reason:'Creates drafts only; no external action.',confidence:88},
-  {id:now(),title:'Prepare approval previews for future external work',description:'Preview any future emails, GitHub issues, workflow triggers, database updates, or payment drafts without executing them.',agentId:supports[1]||selected.leadAgentId,status:'not-started',permissionLevel:2,riskLevel:'medium',reason:'Future external action requires human approval.',confidence:80},
-  {id:now(),title:'Save professional goal report',description:'Save the final local report and link it to the current project when available.',agentId:selected.leadAgentId,status:'not-started',permissionLevel:0,riskLevel:'low',reason:'Local persistence only.',confidence:93}
+  {id:newId(),title:'Clarify goal and success criteria',description:`Turn “${goal.title}” into a measurable outcome and assumptions list.`,agentId:selected.leadAgentId,status:'not-started',permissionLevel:0,riskLevel:'low',reason:'Read-only planning and summarisation.',confidence:91},
+  {id:newId(),title:'Gather supporting perspectives',description:'Ask supporting agents for local recommendations, risks, and missing context.',agentId:supports[0]||selected.leadAgentId,status:'not-started',permissionLevel:0,riskLevel:'low',reason:'Local analysis only.',confidence:86},
+  {id:newId(),title:'Draft coordinated execution plan',description:'Create a sequenced plan with owners, checks, and next actions.',agentId:selected.leadAgentId,status:'not-started',permissionLevel:1,riskLevel:'low',reason:'Creates drafts only; no external action.',confidence:88},
+  {id:newId(),title:'Prepare approval previews for future external work',description:'Preview any future emails, GitHub issues, workflow triggers, database updates, or payment drafts without executing them.',agentId:supports[1]||selected.leadAgentId,status:'not-started',permissionLevel:2,riskLevel:'medium',reason:'Future external action requires human approval.',confidence:80},
+  {id:newId(),title:'Save professional goal report',description:'Save the final local report and link it to the current project when available.',agentId:selected.leadAgentId,status:'not-started',permissionLevel:0,riskLevel:'low',reason:'Local persistence only.',confidence:93}
  ]
 }
 
