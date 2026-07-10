@@ -23,11 +23,11 @@ export function Shell({ page, setPage, pending, children }:{page:PageId; setPage
     </aside>
     <main><header className="app-topbar"><label><span>⌕</span><input aria-label="Search" placeholder="Search your projects and saved work…" /></label><button className="topbar-bell" aria-label="Notifications">♢{pending>0&&<i>{pending}</i>}</button><button className="topbar-profile" onClick={()=>setPage('settings')}><span>P</span><b>My profile</b></button></header>{children}</main>
     <nav className="mobile-nav">
-      <button aria-label="Home" className={page==='home'?'active':''} onClick={()=>setPage('home')}><span>⌂</span><small>Home</small></button>
-      <button aria-label="Projects" className={page==='workspace'?'active':''} onClick={()=>setPage('workspace')}><span>▦</span><small>Projects</small></button>
-      <button aria-label="Create" className="mobile-create" onClick={()=>setPage('workflows')}><span>＋</span><small>Workflows</small></button>
+      <button aria-label="Today" className={page==='home'?'active':''} onClick={()=>setPage('home')}><span>⌂</span><small>Today</small></button>
+      <button aria-label="Workflows" className={page==='workflows'?'active mobile-create':''} onClick={()=>setPage('workflows')}><span>↗</span><small>Workflows</small></button>
       <button aria-label="Reports" className={page==='reports'?'active':''} onClick={()=>setPage('reports')}><span>▤</span><small>Reports</small></button>
-      <button aria-label="Settings and approvals" className={['approvals','settings'].includes(page)?'active':''} onClick={()=>setPage('settings')}><span>☰</span><small>More</small>{pending>0&&<i>{pending}</i>}</button>
+      <button aria-label={pending?`Approvals, ${pending} waiting`:'Approvals'} className={page==='approvals'?'active':''} onClick={()=>setPage('approvals')}><span>✓</span><small>Approvals</small>{pending>0&&<i>{pending}</i>}</button>
+      <button aria-label="Settings" className={page==='settings'?'active':''} onClick={()=>setPage('settings')}><span>⚙</span><small>Settings</small></button>
     </nav>
   </div>
 }

@@ -5,8 +5,8 @@ import { Badge } from '../components/Badge'
 import { getWorkflowTools } from '../services/tools/toolRegistry'
 import { recommendWorkflows } from '../services/workflowRecommendations'
 import { appMode } from '../config/appMode'
+import { workflowStepLabel as statusLabels } from '../services/workflowLifecycle'
 
-const statusLabels:Record<StepStatus,string>={'not-started':'Not started',running:'Running',completed:'Completed','needs-approval':'Needs approval',blocked:'Blocked'}
 function stepStatus(workflow:Workflow,index:number,running:string|null):StepStatus{
  if(workflow.riskLevel==='restricted')return index===workflow.steps.length-1?'blocked':'not-started'
  if(running===workflow.id)return index===0?'running':'not-started'
