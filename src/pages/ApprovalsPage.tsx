@@ -15,6 +15,7 @@ const willNotDo=['Send emails','Create GitHub issues','Update databases','Trigge
 
 export function ApprovalsPage({approvals,update}:{approvals:Approval[];update:(id:string,updates:Partial<Approval>)=>void}){
  const waiting=approvals.filter(item=>item.status==='pending'||item.status==='edited');const [selectedId,setSelectedId]=useState<string|null>(null);const selected=approvals.find(item=>item.id===selectedId)
+ useEffect(()=>{try{const raw=sessionStorage.getItem('founderIntelligence.openTarget');if(!raw)return;const target=JSON.parse(raw) as {type?:string;id?:string};if(target.type==='approval'&&approvals.some(item=>item.id===target.id)){setSelectedId(target.id!);sessionStorage.removeItem('founderIntelligence.openTarget')}}catch{}},[approvals])
  const [action,setAction]=useState('');const [reason,setReason]=useState('');const [editing,setEditing]=useState(false);const [rejecting,setRejecting]=useState(false)
  useEffect(()=>{setAction(selected?.editedAction||selected?.proposedAction||'');setReason(selected?.rejectionReason||'');setEditing(false);setRejecting(false)},[selectedId,selected?.editedAction,selected?.proposedAction,selected?.rejectionReason])
  const restricted=Boolean(selected&&(selected.riskLevel==='restricted'||selected.permissionLevel===3||selected.status==='blocked'));const actionable=Boolean(selected&&(selected.status==='pending'||selected.status==='edited')&&!restricted)
